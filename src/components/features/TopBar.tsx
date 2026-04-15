@@ -1,28 +1,46 @@
 "use client";
 
-// Barra superiore: titolo, selettore esempi, toggle Raggi X.
+// Barra superiore: titolo, selettore esempi, toggle Raggi X, theme preview, export.
 
-import { Ghost, Scan, MousePointer2 } from "lucide-react";
+import {
+  Ghost,
+  Scan,
+  MousePointer2,
+  Moon,
+  Sun,
+  Download,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
 import { EXAMPLES } from "@/lib/examples";
+import { downloadHtmlFile } from "@/lib/exporter";
 
 interface Props {
   onLoadExample: (id: string) => void;
   currentExample: string;
+  htmlSrc: string;
+  cssSrc: string;
 }
 
-export default function TopBar({ onLoadExample, currentExample }: Props) {
-  const { mode, setMode, clear } = useHighlight();
+export default function TopBar({
+  onLoadExample,
+  currentExample,
+  htmlSrc,
+  cssSrc,
+}: Props) {
+  const { mode, setMode, clear, previewTheme, setPreviewTheme } =
+    useHighlight();
+
+  function handleExport() {
+    const ex = EXAMPLES.find((e) => e.id === currentExample);
+    const fname = ex ? `${ex.id}.html` : "mio-progetto.html";
+    downloadHtmlFile(htmlSrc, cssSrc, fname);
+  }
 
   return (
     <div className="flex items-center gap-3 px-4 py-2 border-b border-[var(--bd)] flex-shrink-0 flex-wrap bg-[var(--sf)]">
       <h1 className="text-base font-black tracking-tight">
-        <Ghost
-          className="inline -mt-1 mr-1"
-          size={18}
-          color="#ff6b6b"
-        />
+        <Ghost className="inline -mt-1 mr-1" size={18} color="#ff6b6b" />
         <span className="bg-gradient-to-r from-[#ff6b6b] via-[#4ecdc4] to-[#a78bfa] bg-clip-text text-transparent">
           DIV Explorer
         </span>
@@ -47,7 +65,33 @@ export default function TopBar({ onLoadExample, currentExample }: Props) {
           ))}
         </select>
 
-        <div className="flex items-center gap-1 ml-2">
+        <button
+          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
+          onClick={() =>
+            setPreviewTheme(previewTheme === "light" ? "dark" : "light")
+          }
+          title="Cambia sfondo della preview"
+        >
+          {previewTheme === "light" ? (
+            <>
+              <Sun size={11} /> CHIARO
+            </>
+          ) : (
+            <>
+              <Moon size={11} /> SCURO
+            </>
+          )}
+        </button>
+
+        <button
+          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[#a78bfa] hover:text-[#a78bfa] transition-all"
+          onClick={handleExport}
+          title="Scarica il progetto come file HTML"
+        >
+          <Download size={11} /> SCARICA
+        </button>
+
+        <div className="flex items-center gap-1 ml-1">
           <button
             className={cn(
               "flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border transition-all",

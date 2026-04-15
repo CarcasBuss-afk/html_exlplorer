@@ -14,6 +14,7 @@ import PreviewPanel from "@/components/features/PreviewPanel";
 import HtmlEditorPanel from "@/components/features/HtmlEditorPanel";
 import CssEditorPanel from "@/components/features/CssEditorPanel";
 import InfoTooltip from "@/components/features/InfoTooltip";
+import ResizableColumns from "@/components/features/ResizableColumns";
 
 export default function Home() {
   const [htmlSrc, setHtmlSrc] = useState(DEFAULT_EXAMPLE.html);
@@ -50,14 +51,18 @@ export default function Home() {
   return (
     <HighlightProvider>
       <div className="flex flex-col h-full">
-        <TopBar onLoadExample={loadExample} currentExample={exampleId} />
+        <TopBar
+          onLoadExample={loadExample}
+          currentExample={exampleId}
+          htmlSrc={htmlSrc}
+          cssSrc={cssSrc}
+        />
 
-        <div className="flex flex-1 min-h-0">
+        <ResizableColumns initialWeights={[0.55, 0.225, 0.225]}>
           <CollapsiblePanel
             title="Preview + Albero"
             num={1}
             accent="#ff6b6b"
-            weight={2.5}
           >
             <PreviewPanel
               parsed={parsed}
@@ -82,7 +87,7 @@ export default function Home() {
               cssRules={cssRules}
             />
           </CollapsiblePanel>
-        </div>
+        </ResizableColumns>
 
         {/* Legenda concetti in fondo */}
         <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">

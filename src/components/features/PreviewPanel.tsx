@@ -5,6 +5,7 @@
 import type { ParsedHtml } from "@/types/explorer";
 import BrowserFrame from "./BrowserFrame";
 import HierarchyTree from "./HierarchyTree";
+import { useHighlight } from "@/hooks/useHighlight";
 
 interface Props {
   parsed: ParsedHtml;
@@ -17,6 +18,7 @@ export default function PreviewPanel({
   cssSource,
   allSelectors,
 }: Props) {
+  const { previewTheme } = useHighlight();
   return (
     <div className="h-full flex flex-col p-3 gap-3 overflow-hidden">
       {/* Preview: riempie lo spazio verticale disponibile */}
@@ -25,6 +27,7 @@ export default function PreviewPanel({
           parsed={parsed}
           cssSource={cssSource}
           allSelectors={allSelectors}
+          previewTheme={previewTheme}
         />
       </div>
 

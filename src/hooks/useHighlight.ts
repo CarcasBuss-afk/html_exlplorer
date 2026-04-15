@@ -18,9 +18,11 @@ interface HighlightCtx {
   activeElement: string | null;
   mode: HighlightMode;
   matchedRules: string[];
+  previewTheme: "light" | "dark";
   setActive: (id: string | null) => void;
   setMode: (m: HighlightMode) => void;
   setMatchedRules: (ids: string[]) => void;
+  setPreviewTheme: (t: "light" | "dark") => void;
   clear: () => void;
 }
 
@@ -30,6 +32,7 @@ export function HighlightProvider({ children }: { children: ReactNode }) {
   const [activeElement, setActiveElement] = useState<string | null>(null);
   const [mode, setMode] = useState<HighlightMode>("hover");
   const [matchedRules, setMatchedRules] = useState<string[]>([]);
+  const [previewTheme, setPreviewTheme] = useState<"light" | "dark">("light");
 
   const setActive = useCallback((id: string | null) => {
     setActiveElement(id);
@@ -46,12 +49,14 @@ export function HighlightProvider({ children }: { children: ReactNode }) {
       activeElement,
       mode,
       matchedRules,
+      previewTheme,
       setActive,
       setMode,
       setMatchedRules,
+      setPreviewTheme,
       clear,
     }),
-    [activeElement, mode, matchedRules, setActive, clear],
+    [activeElement, mode, matchedRules, previewTheme, setActive, clear],
   );
 
   return createElement(Ctx.Provider, { value }, children);

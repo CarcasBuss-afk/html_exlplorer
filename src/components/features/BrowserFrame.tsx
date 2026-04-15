@@ -18,6 +18,7 @@ interface Props {
   parsed: ParsedHtml;
   cssSource: string;
   allSelectors: { id: string; selector: string }[];
+  previewTheme: "light" | "dark";
 }
 
 // Script iniettato nell'iframe. Mantenuto come stringa per srcdoc.
@@ -33,8 +34,23 @@ const IFRAME_SCRIPT = `
     [data-explorer-id] { transition: outline 0.2s ease, background 0.2s ease; position: relative; }
     .__xp-active { outline: 2.5px solid var(--xp-c) !important; outline-offset: 2px !important; background: color-mix(in srgb, var(--xp-c) 10%, transparent) !important; z-index: 2; }
     .__xp-parent { outline: 2px dashed var(--xp-c) !important; outline-offset: 2px !important; }
-    body.__xp-xray [data-explorer-id] { outline: 1.5px solid var(--xp-self-c, #888) !important; outline-offset: 1px !important; }
-    .__xp-label { position: absolute; top: -10px; left: 6px; font: 700 9px/1 ui-monospace, monospace; padding: 1px 5px; border-radius: 3px; color: #000; pointer-events: none; z-index: 10; white-space: nowrap; }
+    body.__xp-xray [data-explorer-id] {
+      outline: 2px solid var(--xp-self-c, #888) !important;
+      outline-offset: 1px !important;
+      background: color-mix(in srgb, var(--xp-self-c, #888) 6%, transparent) !important;
+    }
+    .__xp-label {
+      position: absolute; top: -11px; left: 4px;
+      font: 700 10px/1 ui-monospace, monospace;
+      padding: 2px 6px; border-radius: 3px;
+      color: #000;
+      pointer-events: none; z-index: 10; white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    /* In modalità Raggi X, etichette piccole e meno invadenti */
+    body.__xp-xray .__xp-label {
+      top: -9px; font-size: 9px; padding: 1px 4px; opacity: 0.95;
+    }
   \`;
   document.head.appendChild(style);
 
@@ -129,6 +145,7 @@ function buildSrcDoc(
   parsed: ParsedHtml,
   cssSource: string,
   divs: Map<string, HtmlNode>,
+  previewTheme: "light" | "dark",
 ): string {
   // Arricchiamo ogni div con data-xp-color e data-xp-label via stringa
   // (già iniettati nel parsed, ma li aggiungiamo qui in modo semplice).
@@ -141,12 +158,15 @@ function buildSrcDoc(
     );
   }
 
+  const bg = previewTheme === "dark" ? "#1c1c2e" : "#fafafa";
+  const fg = previewTheme === "dark" ? "#e8e8f0" : "#111";
+
   return `<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
 <style>
-  body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; background: #fafafa; color: #111; min-height: 100vh; box-sizing: border-box; }
+  body { margin: 0; padding: 16px; font-family: system-ui, sans-serif; background: ${bg}; color: ${fg}; min-height: 100vh; box-sizing: border-box; }
   * { box-sizing: border-box; }
 ${cssSource}
 </style>
@@ -162,13 +182,14 @@ export default function BrowserFrame({
   parsed,
   cssSource,
   allSelectors,
+  previewTheme,
 }: Props) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { activeElement, mode, setMatchedRules, setActive } = useHighlight();
 
   const srcDoc = useMemo(
-    () => buildSrcDoc(parsed, cssSource, parsed.divs),
-    [parsed, cssSource],
+    () => buildSrcDoc(parsed, cssSource, parsed.divs, previewTheme),
+    [parsed, cssSource, previewTheme],
   );
 
   // Ricevi messaggi dall'iframe
