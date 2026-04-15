@@ -1,65 +1,127 @@
-import Image from "next/image";
+"use client";
+
+// Pagina principale: orchestra editor, parsing, preview, albero e tooltip.
+
+import { useMemo, useState } from "react";
+import { HighlightProvider } from "@/hooks/useHighlight";
+import { useDebounced } from "@/hooks/useDebounced";
+import { parseHtml } from "@/lib/htmlParser";
+import { parseCss, splitSelectors } from "@/lib/cssParser";
+import { DEFAULT_EXAMPLE, EXAMPLES } from "@/lib/examples";
+import TopBar from "@/components/features/TopBar";
+import CollapsiblePanel from "@/components/features/CollapsiblePanel";
+import PreviewPanel from "@/components/features/PreviewPanel";
+import HtmlEditorPanel from "@/components/features/HtmlEditorPanel";
+import CssEditorPanel from "@/components/features/CssEditorPanel";
+import InfoTooltip from "@/components/features/InfoTooltip";
 
 export default function Home() {
+  const [htmlSrc, setHtmlSrc] = useState(DEFAULT_EXAMPLE.html);
+  const [cssSrc, setCssSrc] = useState(DEFAULT_EXAMPLE.css);
+  const [exampleId, setExampleId] = useState(DEFAULT_EXAMPLE.id);
+
+  // Debounce del sorgente per evitare re-render ad ogni keystroke
+  const debouncedHtml = useDebounced(htmlSrc, 300);
+  const debouncedCss = useDebounced(cssSrc, 300);
+
+  const parsed = useMemo(() => parseHtml(debouncedHtml), [debouncedHtml]);
+  const cssRules = useMemo(() => parseCss(debouncedCss), [debouncedCss]);
+
+  // Espandi i selettori composti (h1, h2 → [h1, h2]) per il matching in iframe.
+  // Ogni selettore singolo resta collegato alla sua regola originale tramite ruleId.
+  const allSelectors = useMemo(() => {
+    const out: { id: string; selector: string }[] = [];
+    for (const r of cssRules) {
+      for (const s of splitSelectors(r.selector)) {
+        out.push({ id: r.id, selector: s });
+      }
+    }
+    return out;
+  }, [cssRules]);
+
+  function loadExample(id: string) {
+    const ex = EXAMPLES.find((e) => e.id === id);
+    if (!ex) return;
+    setHtmlSrc(ex.html);
+    setCssSrc(ex.css);
+    setExampleId(id);
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <HighlightProvider>
+      <div className="flex flex-col h-full">
+        <TopBar onLoadExample={loadExample} currentExample={exampleId} />
+
+        <div className="flex flex-1 min-h-0">
+          <CollapsiblePanel
+            title="Preview + Albero"
+            num={1}
+            accent="#ff6b6b"
+            weight={2.5}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            <PreviewPanel
+              parsed={parsed}
+              cssSource={debouncedCss}
+              allSelectors={allSelectors}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </CollapsiblePanel>
+
+          <CollapsiblePanel title="HTML — Struttura" num={2} accent="#fb923c">
+            <HtmlEditorPanel
+              value={htmlSrc}
+              onChange={setHtmlSrc}
+              parsed={parsed}
+            />
+          </CollapsiblePanel>
+
+          <CollapsiblePanel title="CSS — Stile" num={3} accent="#4ecdc4">
+            <CssEditorPanel
+              value={cssSrc}
+              onChange={setCssSrc}
+              parsed={parsed}
+              cssRules={cssRules}
+            />
+          </CollapsiblePanel>
         </div>
-      </main>
+
+        {/* Legenda concetti in fondo */}
+        <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">
+          <LegendItem icon="👻" label="Div invisibili" desc="usa Raggi X" />
+          <LegendItem
+            icon="👆"
+            label="Genitore → Figlio"
+            desc="chi contiene chi"
+          />
+          <LegendItem
+            icon="👫"
+            label="Fratelli"
+            desc="stesso livello, stesso genitore"
+          />
+          <LegendItem icon="🎨" label="HTML = struttura · CSS = stile" />
+        </div>
+
+        <InfoTooltip parsed={parsed} />
+      </div>
+    </HighlightProvider>
+  );
+}
+
+function LegendItem({
+  icon,
+  label,
+  desc,
+}: {
+  icon: string;
+  label: string;
+  desc?: string;
+}) {
+  return (
+    <div className="flex-1 px-3 py-1.5 flex items-center gap-2 border-r border-[var(--bd)] last:border-r-0">
+      <span className="text-base">{icon}</span>
+      <div className="leading-tight">
+        <b className="text-[var(--tx)]">{label}</b>
+        {desc ? <span className="text-[var(--mu)]"> — {desc}</span> : null}
+      </div>
     </div>
   );
 }
