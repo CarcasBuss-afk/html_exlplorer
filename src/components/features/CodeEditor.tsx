@@ -201,6 +201,9 @@ export default function CodeEditor({
           verticalScrollbarSize: 6,
           horizontalScrollbarSize: 6,
         },
+        // Rende i popup (suggerimenti, hover, parameter hints) position:fixed
+        // sul body, così non vengono tagliati dalle colonne con overflow:hidden.
+        fixedOverflowWidgets: true,
         // IntelliSense / autocomplete
         quickSuggestions: {
           other: true,
