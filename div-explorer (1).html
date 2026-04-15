@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I DIV Invisibili — Radiografia della Navbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0c18;--sf:#161628;--sf2:#1c1c38;--sf3:#282850;
+  --tx:#e8e8f0;--mu:#7777aa;--bd:#252548;
+  --nav-c:#ff6b6b;--logo-c:#fbbf24;--menu-c:#4ecdc4;
+  --l1:#a78bfa;--l2:#818cf8;--l3:#c084fc;
+  --act-c:#f472b6;--b1:#fb923c;--b2:#34d399;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--tx);font-family:'Nunito',sans-serif;display:flex;flex-direction:column;}
+
+/* TOP */
+.top{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap;}
+.top h1{font-size:0.95rem;font-weight:900;background:linear-gradient(135deg,var(--nav-c),var(--menu-c),var(--l1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:auto;}
+.top .hint{font-size:0.68rem;color:var(--mu);margin-right:8px;}
+.mbtn{font-family:'Space Mono',monospace;font-size:0.6rem;padding:4px 12px;border-radius:5px;border:1.5px solid var(--bd);background:var(--sf);color:var(--mu);cursor:pointer;transition:all 0.2s;}
+.mbtn:hover{border-color:var(--mu);color:var(--tx);}
+.mbtn.on{border-color:var(--nav-c);color:var(--nav-c);background:rgba(255,107,107,0.08);}
+
+/* MAIN */
+.main{display:flex;flex:1;min-height:0;}
+
+/* PANELS */
+.pnl{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--bd);overflow:hidden;transition:flex 0.35s,min-width 0.35s;}
+.pnl:last-child{border-right:none;}
+.pnl.shut{flex:0 0 28px!important;min-width:28px!important;max-width:28px;}
+.pnl.shut .pbody{opacity:0;pointer-events:none;}
+.pnl.shut .phd .ptxt{writing-mode:vertical-rl;text-orientation:mixed;white-space:nowrap;}
+.pnl.shut .phd{flex-direction:column;padding:7px 4px;gap:5px;align-items:center;}
+.pnl.shut .phd .chv{transform:rotate(180deg);}
+.phd{display:flex;align-items:center;gap:5px;padding:5px 9px;background:var(--sf2);cursor:pointer;user-select:none;flex-shrink:0;border-bottom:1px solid var(--bd);}
+.phd:hover{background:var(--sf3);}
+.pnum{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.45rem;font-weight:700;flex-shrink:0;color:#fff;}
+.ptxt{font-family:'Space Mono',monospace;font-size:0.57rem;letter-spacing:0.5px;text-transform:uppercase;color:var(--mu);white-space:nowrap;}
+.chv{margin-left:auto;font-size:0.55rem;color:var(--mu);transition:transform 0.3s;flex-shrink:0;}
+.pbody{flex:1;overflow-y:auto;overflow-x:hidden;transition:opacity 0.2s;scrollbar-width:thin;scrollbar-color:var(--sf2) transparent;}
+.pbody::-webkit-scrollbar{width:4px;}.pbody::-webkit-scrollbar-thumb{background:var(--sf2);border-radius:2px;}
+
+.pnl[data-p="visual"]{flex:1.5 1 0;}
+.pnl[data-p="html"]{flex:1 1 0;}
+.pnl[data-p="css"]{flex:1 1 0;}
+
+/* VISUAL */
+.vis-inner{padding:12px;display:flex;flex-direction:column;gap:10px;}
+.browser{background:#111122;border-radius:8px;overflow:hidden;border:1px solid var(--bd);}
+.bbar{background:var(--sf2);padding:5px 8px;display:flex;align-items:center;gap:5px;}
+.bdot{width:7px;height:7px;border-radius:50%;}
+.burl{background:var(--sf);border-radius:4px;padding:2px 10px;font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--mu);flex:1;}
+.bbody{padding:12px;}
+
+/* NAVBAR */
+.real-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf);border-radius:7px;position:relative;border:2px solid transparent;transition:all 0.35s;flex-wrap:wrap;gap:6px;}
+.dlbl{position:absolute;font-family:'Space Mono',monospace;font-size:0.5rem;padding:1px 5px;border-radius:3px;color:#fff;opacity:0;transition:opacity 0.35s;pointer-events:none;z-index:10;white-space:nowrap;}
+.logo-g{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:5px;border:2px solid transparent;transition:all 0.35s;position:relative;cursor:default;}
+.logo-g .li{font-size:0.95rem;}.logo-g .lt{font-weight:900;font-size:0.82rem;color:var(--logo-c);}
+.menu-g{display:flex;gap:1px;padding:3px 5px;border-radius:6px;border:2px solid transparent;transition:all 0.35s;position:relative;}
+.ml{font-size:0.68rem;color:var(--mu);padding:4px 9px;border-radius:4px;cursor:default;font-weight:700;border:2px solid transparent;transition:all 0.35s;position:relative;}
+.act-g{display:flex;gap:5px;padding:3px 5px;border-radius:6px;border:2px solid transparent;transition:all 0.35s;position:relative;}
+.ab{font-size:0.62rem;padding:4px 10px;border-radius:4px;font-weight:700;cursor:default;border:2px solid transparent;transition:all 0.35s;position:relative;}
+.abl{background:transparent;color:var(--mu);}.abs{background:var(--b2);color:#000;}
+.fakebody{margin-top:8px;background:var(--sf2);border-radius:5px;height:28px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-family:'Space Mono',monospace;color:#2a2a40;}
+
+/* SHOW-DIV */
+.real-nav.sd{border-color:var(--nav-c)!important;box-shadow:0 0 20px rgba(255,107,107,0.1),inset 0 0 16px rgba(255,107,107,0.03);}
+.real-nav.sd>.dlbl{opacity:1;}
+.logo-g.sd{border-color:var(--logo-c)!important;background:rgba(251,191,36,0.06);}.logo-g.sd>.dlbl{opacity:1;}
+.menu-g.sd{border-color:var(--menu-c)!important;background:rgba(78,205,196,0.06);}.menu-g.sd>.dlbl{opacity:1;}
+.ml.sd.l1{border-color:var(--l1)!important;background:rgba(167,139,250,0.08);color:var(--l1);}
+.ml.sd.l2{border-color:var(--l2)!important;background:rgba(129,140,248,0.08);color:var(--l2);}
+.ml.sd.l3{border-color:var(--l3)!important;background:rgba(192,132,252,0.08);color:var(--l3);}
+.ml.sd>.dlbl{opacity:1;}
+.act-g.sd{border-color:var(--act-c)!important;background:rgba(244,114,182,0.06);}.act-g.sd>.dlbl{opacity:1;}
+.ab.sd.b1{border-color:var(--b1)!important;background:rgba(251,146,60,0.1);color:var(--b1);}
+.ab.sd.b2{border-color:var(--b2)!important;box-shadow:0 0 8px rgba(52,211,153,0.15);}
+.ab.sd>.dlbl{opacity:1;}
+
+/* XRAY */
+.xray .real-nav{border-color:var(--nav-c);}
+.xray .logo-g{border-color:var(--logo-c);background:rgba(251,191,36,0.04);}
+.xray .menu-g{border-color:var(--menu-c);background:rgba(78,205,196,0.04);}
+.xray .ml:nth-child(2){border-color:var(--l1);background:rgba(167,139,250,0.05);}
+.xray .ml:nth-child(3){border-color:var(--l2);background:rgba(129,140,248,0.05);}
+.xray .ml:nth-child(4){border-color:var(--l3);background:rgba(192,132,252,0.05);}
+.xray .act-g{border-color:var(--act-c);background:rgba(244,114,182,0.04);}
+.xray .ab:nth-child(2){border-color:var(--b1);background:rgba(251,146,60,0.06);}
+.xray .ab:nth-child(3){border-color:var(--b2);}
+.xray .dlbl{opacity:1!important;}
+
+/* TREE BOX */
+.treebox{background:var(--sf);border-radius:8px;border:1px solid var(--bd);overflow:hidden;}
+.treebox-hd{font-family:'Space Mono',monospace;font-size:0.55rem;padding:5px 9px;background:var(--sf2);color:var(--mu);letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;user-select:none;display:flex;align-items:center;gap:5px;}
+.treebox-hd:hover{background:var(--sf3);}
+.treebox-bd{padding:10px;overflow:auto;transition:max-height 0.35s,opacity 0.25s;max-height:500px;}
+.treebox.shut .treebox-bd{max-height:0!important;opacity:0;padding:0 8px;}
+
+/* CODE */
+.code-p{padding:10px;font-family:'Space Mono',monospace;font-size:0.6rem;line-height:1.75;counter-reset:ln;}
+.cl{display:block;padding:1px 5px;border-radius:3px;transition:all 0.25s;white-space:pre;border-left:3px solid transparent;}
+.cl::before{counter-increment:ln;content:counter(ln);display:inline-block;width:15px;color:#2a2a3a;text-align:right;margin-right:8px;font-size:0.48rem;}
+.cl.hl{border-left-color:var(--hlc);background:var(--hlb);}
+.tg{color:var(--nav-c);}.at{color:var(--l1);}.vl{color:var(--logo-c);}.cm{color:#3a3a50;font-style:italic;}.tx{color:var(--mu);}
+.sl{color:var(--act-c);}.pr{color:var(--menu-c);}.cv{color:var(--b2);}.pn{color:#555;}
+
+/* BOTTOM */
+.bot{display:flex;border-top:1px solid var(--bd);flex-shrink:0;}
+.bi{flex:1;padding:5px 8px;display:flex;align-items:center;gap:5px;border-right:1px solid var(--bd);}
+.bi:last-child{border-right:none;}
+.bi .ic{font-size:0.85rem;}.bi .tt{font-size:0.58rem;color:var(--mu);line-height:1.2;}.bi .tt b{color:var(--tx);}
+
+/* INFO */
+.ibox{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:var(--sf);border:2px solid var(--l1);border-radius:8px;padding:6px 12px;font-size:0.7rem;color:var(--tx);text-align:center;z-index:200;opacity:0;transition:all 0.25s;pointer-events:none;max-width:460px;box-shadow:0 4px 20px rgba(0,0,0,0.6);line-height:1.3;}
+.ibox.vis{opacity:1;}
+.ibox .rt{font-family:'Space Mono',monospace;font-size:0.52rem;display:inline-block;padding:1px 5px;border-radius:3px;margin-right:3px;font-weight:700;color:#fff;}
+
+@media(max-width:900px){
+  body{overflow:auto;height:auto;}.main{flex-direction:column;}
+  .pnl{border-right:none;border-bottom:1px solid var(--bd);min-height:200px;}
+  .pnl.shut{flex:0 0 26px!important;min-width:unset!important;max-width:unset!important;min-height:26px!important;max-height:26px!important;}
+  .pnl.shut .phd{flex-direction:row;}.pnl.shut .phd .ptxt{writing-mode:horizontal-tb;}
+  .bot{flex-wrap:wrap;}.bi{border-bottom:1px solid var(--bd);}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>👻 Radiografia dei &lt;div&gt;</h1>
+  <span class="hint">Passa il mouse per rivelare i div invisibili</span>
+  <button class="mbtn" id="bh" data-mode="hover" onclick="setMode('hover')">👆 Hover</button>
+  <button class="mbtn" id="bx" data-mode="xray" onclick="setMode('xray')">💀 Raggi X</button>
+</div>
+
+<div class="main">
+
+  <!-- COL 1: VISUAL + TREE -->
+  <div class="pnl" data-p="visual">
+    <div class="phd" onclick="this.closest('.pnl').classList.toggle('shut')">
+      <span class="pnum" style="background:var(--nav-c)">1</span>
+      <span class="ptxt">Browser + Albero</span><span class="chv">◀</span>
+    </div>
+    <div class="pbody">
+      <div class="vis-inner">
+        <div class="browser">
+          <div class="bbar">
+            <span class="bdot" style="background:#ff5f57"></span>
+            <span class="bdot" style="background:#febc2e"></span>
+            <span class="bdot" style="background:#28c840"></span>
+            <div class="burl">https://miosito.it</div>
+          </div>
+          <div class="bbody" id="bbody">
+            <div class="real-nav" data-g="nav">
+              <span class="dlbl" style="background:var(--nav-c);top:-10px;left:8px">div.navbar</span>
+              <div class="logo-g" data-g="logo">
+                <span class="dlbl" style="background:var(--logo-c);color:#000;top:-10px;left:2px">div.logo</span>
+                <span class="li">⚡</span><span class="lt">MioSito</span>
+              </div>
+              <div class="menu-g" data-g="menu">
+                <span class="dlbl" style="background:var(--menu-c);color:#000;top:-10px;left:2px">div.menu</span>
+                <span class="ml l1" data-g="link1"><span class="dlbl" style="background:var(--l1);bottom:-10px;left:50%;transform:translateX(-50%)">&lt;a&gt;</span>Home</span>
+                <span class="ml l2" data-g="link2"><span class="dlbl" style="background:var(--l2);bottom:-10px;left:50%;transform:translateX(-50%)">&lt;a&gt;</span>Chi siamo</span>
+                <span class="ml l3" data-g="link3"><span class="dlbl" style="background:var(--l3);bottom:-10px;left:50%;transform:translateX(-50%)">&lt;a&gt;</span>Contatti</span>
+              </div>
+              <div class="act-g" data-g="actions">
+                <span class="dlbl" style="background:var(--act-c);top:-10px;left:2px">div.azioni</span>
+                <span class="ab abl b1" data-g="btn1"><span class="dlbl" style="background:var(--b1);color:#000;bottom:-10px;left:50%;transform:translateX(-50%)">&lt;button&gt;</span>Login</span>
+                <span class="ab abs b2" data-g="btn2"><span class="dlbl" style="background:var(--b2);color:#000;bottom:-10px;left:50%;transform:translateX(-50%)">&lt;button&gt;</span>Registrati</span>
+              </div>
+            </div>
+            <div class="fakebody">...contenuto della pagina...</div>
+          </div>
+        </div>
+
+        <!-- TREE -->
+        <div class="treebox" id="tb">
+          <div class="treebox-hd" onclick="document.getElementById('tb').classList.toggle('shut')">▼ Albero della gerarchia</div>
+          <div class="treebox-bd">
+            <svg viewBox="0 0 740 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+              <!-- Connection lines -->
+              <g stroke="#222238" stroke-width="2" fill="none">
+                <line x1="370" y1="55" x2="120" y2="130"/>
+                <line x1="370" y1="55" x2="370" y2="130"/>
+                <line x1="370" y1="55" x2="620" y2="130"/>
+                <line x1="370" y1="170" x2="245" y2="245"/>
+                <line x1="370" y1="170" x2="370" y2="245"/>
+                <line x1="370" y1="170" x2="495" y2="245"/>
+                <line x1="620" y1="170" x2="575" y2="245"/>
+                <line x1="620" y1="170" x2="665" y2="245"/>
+              </g>
+
+              <!-- Sibling brackets Lv1 -->
+              <line x1="155" y1="180" x2="335" y2="180" stroke="var(--mu)" stroke-width="1" stroke-dasharray="3,3" opacity="0.35"/>
+              <text x="245" y="194" text-anchor="middle" fill="var(--mu)" font-family="Space Mono,monospace" font-size="9" opacity="0.5">← fratelli →</text>
+              <line x1="405" y1="180" x2="585" y2="180" stroke="var(--mu)" stroke-width="1" stroke-dasharray="3,3" opacity="0.35"/>
+              <text x="495" y="194" text-anchor="middle" fill="var(--mu)" font-family="Space Mono,monospace" font-size="9" opacity="0.5">← fratelli →</text>
+
+              <!-- Sibling brackets Lv2 links -->
+              <line x1="278" y1="284" x2="462" y2="284" stroke="var(--mu)" stroke-width="1" stroke-dasharray="3,3" opacity="0.35"/>
+              <text x="370" y="298" text-anchor="middle" fill="var(--mu)" font-family="Space Mono,monospace" font-size="9" opacity="0.5">← fratelli →</text>
+              <!-- Sibling brackets Lv2 buttons -->
+              <line x1="600" y1="284" x2="690" y2="284" stroke="var(--mu)" stroke-width="1" stroke-dasharray="3,3" opacity="0.35"/>
+              <text x="645" y="298" text-anchor="middle" fill="var(--mu)" font-family="Space Mono,monospace" font-size="9" opacity="0.5">fratelli</text>
+
+              <!-- Level labels -->
+              <text x="14" y="42" fill="#444" font-family="Space Mono,monospace" font-size="10">Livello 0</text>
+              <text x="14" y="152" fill="#444" font-family="Space Mono,monospace" font-size="10">Livello 1</text>
+              <text x="14" y="262" fill="#444" font-family="Space Mono,monospace" font-size="10">Livello 2</text>
+
+              <!-- "figlio" labels on lines -->
+              <text x="210" y="98" text-anchor="middle" fill="#444" font-family="Space Mono,monospace" font-size="9" transform="rotate(-18,210,98)">figlio</text>
+              <text x="370" y="98" text-anchor="middle" fill="#444" font-family="Space Mono,monospace" font-size="9">figlio</text>
+              <text x="530" y="98" text-anchor="middle" fill="#444" font-family="Space Mono,monospace" font-size="9" transform="rotate(18,530,98)">figlio</text>
+
+              <!-- NODES -->
+              <g data-g="nav" style="cursor:pointer">
+                <rect x="308" y="20" width="124" height="38" rx="8" fill="var(--sf)" stroke="var(--nav-c)" stroke-width="2.5"/>
+                <text x="370" y="44" text-anchor="middle" fill="var(--nav-c)" font-family="Space Mono,monospace" font-size="13" font-weight="700">🧭 navbar</text>
+              </g>
+              <g data-g="logo" style="cursor:pointer">
+                <rect x="60" y="125" width="120" height="38" rx="8" fill="var(--sf)" stroke="var(--logo-c)" stroke-width="2"/>
+                <text x="120" y="149" text-anchor="middle" fill="var(--logo-c)" font-family="Space Mono,monospace" font-size="12">⚡ logo</text>
+              </g>
+              <g data-g="menu" style="cursor:pointer">
+                <rect x="308" y="125" width="124" height="38" rx="8" fill="var(--sf)" stroke="var(--menu-c)" stroke-width="2"/>
+                <text x="370" y="149" text-anchor="middle" fill="var(--menu-c)" font-family="Space Mono,monospace" font-size="12">📋 menu</text>
+              </g>
+              <g data-g="actions" style="cursor:pointer">
+                <rect x="558" y="125" width="124" height="38" rx="8" fill="var(--sf)" stroke="var(--act-c)" stroke-width="2"/>
+                <text x="620" y="149" text-anchor="middle" fill="var(--act-c)" font-family="Space Mono,monospace" font-size="12">🎯 azioni</text>
+              </g>
+              <g data-g="link1" style="cursor:pointer">
+                <rect x="190" y="238" width="110" height="36" rx="7" fill="var(--sf)" stroke="var(--l1)" stroke-width="2"/>
+                <text x="245" y="261" text-anchor="middle" fill="var(--l1)" font-family="Space Mono,monospace" font-size="11">Home</text>
+              </g>
+              <g data-g="link2" style="cursor:pointer">
+                <rect x="315" y="238" width="110" height="36" rx="7" fill="var(--sf)" stroke="var(--l2)" stroke-width="2"/>
+                <text x="370" y="261" text-anchor="middle" fill="var(--l2)" font-family="Space Mono,monospace" font-size="10">Chi siamo</text>
+              </g>
+              <g data-g="link3" style="cursor:pointer">
+                <rect x="440" y="238" width="110" height="36" rx="7" fill="var(--sf)" stroke="var(--l3)" stroke-width="2"/>
+                <text x="495" y="261" text-anchor="middle" fill="var(--l3)" font-family="Space Mono,monospace" font-size="11">Contatti</text>
+              </g>
+              <g data-g="btn1" style="cursor:pointer">
+                <rect x="530" y="238" width="90" height="36" rx="7" fill="var(--sf)" stroke="var(--b1)" stroke-width="2"/>
+                <text x="575" y="261" text-anchor="middle" fill="var(--b1)" font-family="Space Mono,monospace" font-size="11">Login</text>
+              </g>
+              <g data-g="btn2" style="cursor:pointer">
+                <rect x="625" y="238" width="90" height="36" rx="7" fill="var(--sf)" stroke="var(--b2)" stroke-width="2"/>
+                <text x="670" y="261" text-anchor="middle" fill="var(--b2)" font-family="Space Mono,monospace" font-size="9.5">Registrati</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COL 2: HTML -->
+  <div class="pnl" data-p="html">
+    <div class="phd" onclick="this.closest('.pnl').classList.toggle('shut')">
+      <span class="pnum" style="background:var(--b1)">2</span>
+      <span class="ptxt">HTML — Struttura</span><span class="chv">◀</span>
+    </div>
+    <div class="pbody">
+      <div class="code-p">
+        <span class="cl" data-c="nav"><span class="tg">&lt;div</span> <span class="at">class=</span><span class="vl">"navbar"</span><span class="tg">&gt;</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="logo"><span class="tg">  &lt;div</span> <span class="at">class=</span><span class="vl">"logo"</span><span class="tg">&gt;</span></span>
+        <span class="cl" data-c="logo">    <span class="tx">⚡ MioSito</span></span>
+        <span class="cl" data-c="logo"><span class="tg">  &lt;/div&gt;</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="menu"><span class="tg">  &lt;div</span> <span class="at">class=</span><span class="vl">"menu"</span><span class="tg">&gt;</span></span>
+        <span class="cl" data-c="link1"><span class="tg">    &lt;a</span> <span class="at">href=</span><span class="vl">"#"</span><span class="tg">&gt;</span><span class="tx">Home</span><span class="tg">&lt;/a&gt;</span></span>
+        <span class="cl" data-c="link2"><span class="tg">    &lt;a</span> <span class="at">href=</span><span class="vl">"#"</span><span class="tg">&gt;</span><span class="tx">Chi siamo</span><span class="tg">&lt;/a&gt;</span></span>
+        <span class="cl" data-c="link3"><span class="tg">    &lt;a</span> <span class="at">href=</span><span class="vl">"#"</span><span class="tg">&gt;</span><span class="tx">Contatti</span><span class="tg">&lt;/a&gt;</span></span>
+        <span class="cl" data-c="menu"><span class="tg">  &lt;/div&gt;</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="actions"><span class="tg">  &lt;div</span> <span class="at">class=</span><span class="vl">"azioni"</span><span class="tg">&gt;</span></span>
+        <span class="cl" data-c="btn1"><span class="tg">    &lt;button&gt;</span><span class="tx">Login</span><span class="tg">&lt;/button&gt;</span></span>
+        <span class="cl" data-c="btn2"><span class="tg">    &lt;button&gt;</span><span class="tx">Registrati</span><span class="tg">&lt;/button&gt;</span></span>
+        <span class="cl" data-c="actions"><span class="tg">  &lt;/div&gt;</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="nav"><span class="tg">&lt;/div&gt;</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COL 3: CSS -->
+  <div class="pnl" data-p="css">
+    <div class="phd" onclick="this.closest('.pnl').classList.toggle('shut')">
+      <span class="pnum" style="background:var(--menu-c)">3</span>
+      <span class="ptxt">CSS — Stile</span><span class="chv">◀</span>
+    </div>
+    <div class="pbody">
+      <div class="code-p">
+        <span class="cl" data-c="nav"><span class="sl">.navbar</span> <span class="pn">{</span></span>
+        <span class="cl" data-c="nav">  <span class="pr">display</span><span class="pn">:</span> <span class="cv">flex</span><span class="pn">;</span></span>
+        <span class="cl" data-c="nav">  <span class="pr">justify-content</span><span class="pn">:</span> <span class="cv">space-between</span><span class="pn">;</span></span>
+        <span class="cl" data-c="nav">  <span class="pr">align-items</span><span class="pn">:</span> <span class="cv">center</span><span class="pn">;</span></span>
+        <span class="cl" data-c="nav">  <span class="pr">padding</span><span class="pn">:</span> <span class="cv">12px 20px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="nav">  <span class="pr">background</span><span class="pn">:</span> <span class="cv">#1a1a2e</span><span class="pn">;</span></span>
+        <span class="cl" data-c="nav"><span class="pn">}</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="logo"><span class="sl">.logo</span> <span class="pn">{</span></span>
+        <span class="cl" data-c="logo">  <span class="pr">display</span><span class="pn">:</span> <span class="cv">flex</span><span class="pn">;</span></span>
+        <span class="cl" data-c="logo">  <span class="pr">align-items</span><span class="pn">:</span> <span class="cv">center</span><span class="pn">;</span></span>
+        <span class="cl" data-c="logo">  <span class="pr">gap</span><span class="pn">:</span> <span class="cv">6px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="logo">  <span class="pr">font-weight</span><span class="pn">:</span> <span class="cv">900</span><span class="pn">;</span></span>
+        <span class="cl" data-c="logo"><span class="pn">}</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="menu"><span class="sl">.menu</span> <span class="pn">{</span></span>
+        <span class="cl" data-c="menu">  <span class="pr">display</span><span class="pn">:</span> <span class="cv">flex</span><span class="pn">;</span></span>
+        <span class="cl" data-c="menu">  <span class="pr">gap</span><span class="pn">:</span> <span class="cv">4px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="menu"><span class="pn">}</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="link1"><span class="sl">.menu a</span> <span class="pn">{</span></span>
+        <span class="cl" data-c="link1">  <span class="pr">color</span><span class="pn">:</span> <span class="cv">#888</span><span class="pn">;</span></span>
+        <span class="cl" data-c="link1">  <span class="pr">padding</span><span class="pn">:</span> <span class="cv">6px 14px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="link1">  <span class="pr">text-decoration</span><span class="pn">:</span> <span class="cv">none</span><span class="pn">;</span></span>
+        <span class="cl" data-c="link1">  <span class="pr">font-weight</span><span class="pn">:</span> <span class="cv">700</span><span class="pn">;</span></span>
+        <span class="cl" data-c="link1"><span class="pn">}</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="actions"><span class="sl">.azioni</span> <span class="pn">{</span></span>
+        <span class="cl" data-c="actions">  <span class="pr">display</span><span class="pn">:</span> <span class="cv">flex</span><span class="pn">;</span></span>
+        <span class="cl" data-c="actions">  <span class="pr">gap</span><span class="pn">:</span> <span class="cv">8px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="actions"><span class="pn">}</span></span>
+        <span class="cl"></span>
+        <span class="cl" data-c="btn1"><span class="sl">button</span> <span class="pn">{</span></span>
+        <span class="cl" data-c="btn1">  <span class="pr">padding</span><span class="pn">:</span> <span class="cv">6px 16px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="btn1">  <span class="pr">border-radius</span><span class="pn">:</span> <span class="cv">6px</span><span class="pn">;</span></span>
+        <span class="cl" data-c="btn1">  <span class="pr">font-weight</span><span class="pn">:</span> <span class="cv">700</span><span class="pn">;</span></span>
+        <span class="cl" data-c="btn1">  <span class="pr">border</span><span class="pn">:</span> <span class="cv">none</span><span class="pn">;</span></span>
+        <span class="cl" data-c="btn1">  <span class="pr">cursor</span><span class="pn">:</span> <span class="cv">pointer</span><span class="pn">;</span></span>
+        <span class="cl" data-c="btn1"><span class="pn">}</span></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bot">
+  <div class="bi"><span class="ic">👻</span><div class="tt"><b>I div sono invisibili</b> — usa Raggi X</div></div>
+  <div class="bi"><span class="ic">👆👶</span><div class="tt"><b>Genitore→Figlio</b> — chi contiene chi</div></div>
+  <div class="bi"><span class="ic">👫</span><div class="tt"><b>Fratelli</b> — stesso livello, stesso genitore</div></div>
+  <div class="bi"><span class="ic">🎨</span><div class="tt"><b>HTML</b> = struttura · <b>CSS</b> = stile</div></div>
+</div>
+
+<div class="ibox" id="ibox"></div>
+
+<script>
+var info = {
+  nav:{role:'GENITORE',color:'var(--nav-c)',text:'<b>div.navbar</b> — contenitore INVISIBILE di tutta la barra. 3 figli: logo, menu, azioni.'},
+  logo:{role:'FIGLIO',color:'var(--logo-c)',text:'<b>div.logo</b> — figlio di navbar, fratello di menu e azioni.'},
+  menu:{role:'GENITORE + FIGLIO',color:'var(--menu-c)',text:'<b>div.menu</b> — figlio di navbar MA genitore dei 3 link!'},
+  link1:{role:'FIGLIO',color:'var(--l1)',text:'<b>&lt;a&gt; Home</b> — figlio di menu, fratello di Chi siamo e Contatti.'},
+  link2:{role:'FIGLIO',color:'var(--l2)',text:'<b>&lt;a&gt; Chi siamo</b> — figlio di menu, fratello di Home e Contatti.'},
+  link3:{role:'FIGLIO',color:'var(--l3)',text:'<b>&lt;a&gt; Contatti</b> — figlio di menu, fratello di Home e Chi siamo.'},
+  actions:{role:'GENITORE + FIGLIO',color:'var(--act-c)',text:'<b>div.azioni</b> — figlio di navbar, genitore dei 2 bottoni.'},
+  btn1:{role:'FIGLIO',color:'var(--b1)',text:'<b>&lt;button&gt; Login</b> — figlio di azioni, fratello di Registrati.'},
+  btn2:{role:'FIGLIO',color:'var(--b2)',text:'<b>&lt;button&gt; Registrati</b> — figlio di azioni, fratello di Login.'}
+};
+
+var cc = {
+  nav:{c:'var(--nav-c)',b:'rgba(255,107,107,0.06)'},
+  logo:{c:'var(--logo-c)',b:'rgba(251,191,36,0.06)'},
+  menu:{c:'var(--menu-c)',b:'rgba(78,205,196,0.06)'},
+  link1:{c:'var(--l1)',b:'rgba(167,139,250,0.06)'},
+  link2:{c:'var(--l2)',b:'rgba(129,140,248,0.06)'},
+  link3:{c:'var(--l3)',b:'rgba(192,132,252,0.06)'},
+  actions:{c:'var(--act-c)',b:'rgba(244,114,182,0.06)'},
+  btn1:{c:'var(--b1)',b:'rgba(251,146,60,0.06)'},
+  btn2:{c:'var(--b2)',b:'rgba(52,211,153,0.06)'}
+};
+
+var pc = {nav:[],logo:['nav'],menu:['nav'],link1:['menu','nav'],link2:['menu','nav'],link3:['menu','nav'],actions:['nav'],btn1:['actions','nav'],btn2:['actions','nav']};
+var cssMap = {link2:'link1',link3:'link1',btn2:'btn1'};
+
+var ibox = document.getElementById('ibox');
+var mode = 'hover';
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mbtn').forEach(function(b){b.classList.toggle('on', b.dataset.mode === m);});
+  var bb = document.getElementById('bbody');
+  if (m === 'xray') { bb.classList.add('xray'); }
+  else { bb.classList.remove('xray'); clearAll(); }
+}
+
+function showDiv(name) {
+  if (mode === 'xray') return;
+  var d = info[name];
+  if (!d) return;
+
+  // Visual: show div + parents
+  var chain = [name].concat(pc[name]);
+  chain.forEach(function(n) {
+    document.querySelectorAll('[data-g="'+n+'"]').forEach(function(el){ el.classList.add('sd'); });
+  });
+
+  // Code: highlight HTML lines
+  var c = cc[name];
+  document.querySelectorAll('.cl[data-c="'+name+'"]').forEach(function(el){
+    el.style.setProperty('--hlc', c.c);
+    el.style.setProperty('--hlb', c.b);
+    el.classList.add('hl');
+  });
+
+  // Code: highlight CSS lines (with shared mapping)
+  var cssName = cssMap[name] || name;
+  var c2 = cc[name];
+  document.querySelectorAll('.cl[data-c="'+cssName+'"]').forEach(function(el){
+    el.style.setProperty('--hlc', c2.c);
+    el.style.setProperty('--hlb', c2.b);
+    el.classList.add('hl');
+  });
+
+  // Tree: highlight node
+  document.querySelectorAll('svg [data-g="'+name+'"] rect').forEach(function(r){
+    r.style.fillOpacity = '0.15';
+    r.style.filter = 'drop-shadow(0 0 6px currentColor)';
+  });
+
+  // Info box
+  ibox.innerHTML = '<span class="rt" style="background:'+d.color+';color:#000">'+d.role+'</span>'+d.text;
+  ibox.style.borderColor = d.color;
+  ibox.classList.add('vis');
+}
+
+function clearAll() {
+  document.querySelectorAll('.sd').forEach(function(el){ el.classList.remove('sd'); });
+  document.querySelectorAll('.cl.hl').forEach(function(el){
+    el.classList.remove('hl');
+    el.style.removeProperty('--hlc');
+    el.style.removeProperty('--hlb');
+  });
+  document.querySelectorAll('svg rect').forEach(function(r){
+    r.style.fillOpacity = '';
+    r.style.filter = '';
+  });
+  ibox.classList.remove('vis');
+}
+
+// Bind all interactive elements
+function bind(sel, attr) {
+  document.querySelectorAll(sel).forEach(function(el) {
+    el.addEventListener('mouseenter', function(e) {
+      e.stopPropagation();
+      clearAll();
+      showDiv(el.getAttribute(attr));
+    });
+    el.addEventListener('mouseleave', function(e) {
+      e.stopPropagation();
+      clearAll();
+    });
+  });
+}
+
+bind('[data-g]', 'data-g');
+bind('.cl[data-c]', 'data-c');
+
+// Touch
+document.addEventListener('touchstart', function(e) {
+  var t = e.target.closest('[data-g]') || e.target.closest('[data-c]');
+  clearAll();
+  if (t) showDiv(t.getAttribute('data-g') || t.getAttribute('data-c'));
+}, {passive: true});
+</script>
+</body>
+</html>
