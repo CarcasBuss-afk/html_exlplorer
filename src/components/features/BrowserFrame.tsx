@@ -31,6 +31,7 @@ const IFRAME_SCRIPT = `
   // Stile dinamico per highlight e raggi X
   const style = document.createElement('style');
   style.textContent = \`
+    body { position: relative; }
     [data-explorer-id] { transition: outline 0.2s ease, background 0.2s ease; position: relative; }
     .__xp-active { outline: 2.5px solid var(--xp-c) !important; outline-offset: 2px !important; background: color-mix(in srgb, var(--xp-c) 10%, transparent) !important; z-index: 2; }
     .__xp-parent { outline: 2px dashed var(--xp-c) !important; outline-offset: 2px !important; }
@@ -47,12 +48,35 @@ const IFRAME_SCRIPT = `
       pointer-events: none; z-index: 10; white-space: nowrap;
       box-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
+    /* Per void element (img, input, ecc.) usiamo label flottante sul body */
+    .__xp-label-float { z-index: 10000; }
     /* In modalità Raggi X, etichette piccole e meno invadenti */
     body.__xp-xray .__xp-label {
       top: -9px; font-size: 9px; padding: 1px 4px; opacity: 0.95;
     }
   \`;
   document.head.appendChild(style);
+
+  // Void elements: non possono avere figli, label va messa come elemento flottante.
+  const VOID = { AREA:1, BASE:1, BR:1, COL:1, EMBED:1, HR:1, IMG:1, INPUT:1, LINK:1, META:1, SOURCE:1, TRACK:1, WBR:1 };
+
+  function addLabel(el, color, text) {
+    const lbl = document.createElement('span');
+    lbl.className = '__xp-label';
+    lbl.style.background = color;
+    lbl.textContent = text;
+    if (VOID[el.tagName]) {
+      const rect = el.getBoundingClientRect();
+      const bodyRect = document.body.getBoundingClientRect();
+      lbl.classList.add('__xp-label-float');
+      lbl.style.left = (rect.left - bodyRect.left + 4) + 'px';
+      lbl.style.top = (rect.top - bodyRect.top - 12) + 'px';
+      document.body.appendChild(lbl);
+    } else {
+      el.appendChild(lbl);
+    }
+    return lbl;
+  }
 
   document.addEventListener('mouseover', function(e) {
     const t = e.target.closest ? e.target.closest('[data-explorer-id]') : null;
@@ -91,11 +115,7 @@ const IFRAME_SCRIPT = `
       if (el) {
         el.classList.add('__xp-active');
         el.style.setProperty('--xp-c', d.color);
-        const lbl = document.createElement('span');
-        lbl.className = '__xp-label';
-        lbl.style.background = d.color;
-        lbl.textContent = d.label;
-        el.appendChild(lbl);
+        addLabel(el, d.color, d.label);
       }
       (d.parents || []).forEach(function(p) {
         const pe = document.querySelector('[data-explorer-id="' + p.id + '"]');
@@ -113,11 +133,7 @@ const IFRAME_SCRIPT = `
         document.querySelectorAll('[data-explorer-id]').forEach(function(el) {
           const c = el.getAttribute('data-xp-color') || '#888';
           el.style.setProperty('--xp-self-c', c);
-          const lbl = document.createElement('span');
-          lbl.className = '__xp-label';
-          lbl.style.background = c;
-          lbl.textContent = el.getAttribute('data-xp-label') || 'div';
-          el.appendChild(lbl);
+          addLabel(el, c, el.getAttribute('data-xp-label') || 'div');
         });
       } else {
         document.body.classList.remove('__xp-xray');
