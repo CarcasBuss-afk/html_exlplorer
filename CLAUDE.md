@@ -15,10 +15,8 @@
 
 ## Stack tecnologico
 
-- **Progetto**: [NOME PROGETTO]
+- **Progetto**: html_explorer
 - **Frontend**: Next.js (App Router) + TypeScript + Tailwind CSS
-- **Database**: Firebase Firestore
-- **Autenticazione**: Firebase Auth
 - **Hosting**: Vercel
 - **Repository**: Git + GitHub
 
@@ -45,7 +43,6 @@
 ## Gestione dipendenze
 
 **Dipendenze approvate** — installabili senza chiedere conferma:
-- `firebase`, `firebase-admin`
 - `clsx`, `tailwind-merge`
 - `lucide-react`
 
@@ -54,11 +51,9 @@
 ## Gestione errori
 
 - Usare le utility in `src/lib/errors.ts` per gestione errori consistente
-- Wrappare le chiamate Firebase in try/catch
 - Loggare errori con `console.error` in sviluppo
 - Mai esporre dettagli tecnici degli errori all'utente finale
 
 ## Riferimenti
 
 - **Contesto progetto**: consulta [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md) per obiettivi, funzionalità e decisioni architetturali
-- **Regole Firestore**: consulta [firestore.rules](firestore.rules) prima di modificare la sicurezza del database

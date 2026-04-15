@@ -1,7 +1,7 @@
-# Contesto Progetto — [NOME PROGETTO]
+# Contesto Progetto — html_explorer
 
 ## Obiettivo
-[Descrizione in 2-3 frasi di cosa fa il progetto e quale problema risolve]
+Un progetto per insegnare agli allievi come funziona il sistema display flex e come sfruttare i tag div per creare una gerarchia genitori/figli in modo da personalizzare il layout delle pagine HTML + CSS.
 
 ## Utenti target
 [Chi userà questa applicazione? Es: studenti, insegnanti, clienti di un e-commerce...]
@@ -22,22 +22,14 @@ Tutto il resto è "nice to have" — Claude Code non deve proporlo spontaneament
 - **Riferimenti**: [siti o app con uno stile simile a quello desiderato, se presenti]
 
 ## Decisioni architetturali
-[Scelte importanti già prese. Es: "Autenticazione solo con Google", "Dati tutti su Firestore, niente API esterne", ecc.]
-
-## Struttura dati (Firestore)
-[Collezioni principali e relazioni. Es:]
-- `users/` — profili utente
-- `projects/` — progetti creati dagli utenti
+[Scelte importanti già prese. Es: "Solo Next.js, nessun backend/DB esterno", ecc.]
 
 ## Pagine/Route principali
 - `/` — Homepage
-- `/dashboard` — Dashboard utente
-- `/auth` — Login/Registrazione
 
 ## Endpoint API
 [Elenco delle API routes man mano che vengono create. Es:]
-- `GET /api/users` — lista utenti
-- `POST /api/projects` — crea nuovo progetto
+- `GET /api/esempio` — descrizione
 
 [Aggiornare questa sezione ogni volta che si aggiunge un endpoint.]
 

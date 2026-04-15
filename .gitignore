@@ -20,13 +20,11 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Firebase
-.firebase/
-firebase-debug.log
-firestore-debug.log
-
 # Vercel
 .vercel/
+
+# Claude Code (preferenze locali)
+.claude/settings.local.json
 
 # Debug
 npm-debug.log*
