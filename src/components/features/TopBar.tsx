@@ -9,17 +9,22 @@ import {
   Moon,
   Sun,
   Download,
+  Columns2,
+  Rows2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
 import { EXAMPLES } from "@/lib/examples";
 import { downloadHtmlFile } from "@/lib/exporter";
+import type { EditorLayout } from "@/app/page";
 
 interface Props {
   onLoadExample: (id: string) => void;
   currentExample: string;
   htmlSrc: string;
   cssSrc: string;
+  editorLayout: EditorLayout;
+  onToggleLayout: () => void;
 }
 
 export default function TopBar({
@@ -27,6 +32,8 @@ export default function TopBar({
   currentExample,
   htmlSrc,
   cssSrc,
+  editorLayout,
+  onToggleLayout,
 }: Props) {
   const { mode, setMode, clear, previewTheme, setPreviewTheme } =
     useHighlight();
@@ -64,6 +71,18 @@ export default function TopBar({
             </option>
           ))}
         </select>
+
+        <button
+          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
+          onClick={onToggleLayout}
+          title={editorLayout === "side" ? "Impila editor verticalmente" : "Affianca editor"}
+        >
+          {editorLayout === "side" ? (
+            <><Rows2 size={11} /> IMPILA</>
+          ) : (
+            <><Columns2 size={11} /> AFFIANCA</>
+          )}
+        </button>
 
         <button
           className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
