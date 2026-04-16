@@ -110,10 +110,8 @@ export default function ResizableColumns({
   }
 
   return (
-    <div ref={containerRef} className="flex flex-1 min-h-0">
+    <div ref={containerRef} className="flex flex-1 min-h-0 relative">
       {kids.map((child, i) => {
-        // Il CollapsiblePanel riceve il weight come prop; se passa un weight
-        // prop al figlio, lo sovrascriviamo con il nostro stato.
         const cloned = cloneElement(
           child as ReactElement<{ weight?: number }>,
           { weight: weights[i] * n } as { weight: number },
@@ -134,6 +132,12 @@ export default function ResizableColumns({
           </div>
         );
       })}
+
+      {/* Overlay trasparente durante il drag: impedisce all'iframe
+          di "rubare" gli eventi mouse e bloccare il rilascio. */}
+      {dragging && (
+        <div className="fixed inset-0 z-50 cursor-col-resize" />
+      )}
     </div>
   );
 }
