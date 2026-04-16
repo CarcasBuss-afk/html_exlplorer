@@ -10,7 +10,7 @@
 //
 // La comunicazione usa window.postMessage con un marker { source: 'explorer' | 'explorer-host' }.
 
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { HtmlNode, ParsedHtml } from "@/types/explorer";
 import { useHighlight } from "@/hooks/useHighlight";
 
@@ -78,15 +78,6 @@ const IFRAME_SCRIPT = `
     }
     return lbl;
   }
-
-  // Blocca navigazione link e submit form dentro la preview.
-  document.addEventListener('click', function(e) {
-    var link = e.target.closest ? e.target.closest('a') : null;
-    if (link) e.preventDefault();
-    var btn = e.target.closest ? e.target.closest('button[type="submit"], input[type="submit"]') : null;
-    if (btn) e.preventDefault();
-  }, true);
-  document.addEventListener('submit', function(e) { e.preventDefault(); }, true);
 
   document.addEventListener('mouseover', function(e) {
     const t = e.target.closest ? e.target.closest('[data-explorer-id]') : null;
@@ -216,39 +207,54 @@ export default function BrowserFrame({
 }: Props) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { activeElement, mode, setMatchedRules, setActive } = useHighlight();
-  const iframeReadyRef = useRef(false);
 
   const srcDoc = useMemo(
     () => buildSrcDoc(parsed, cssSource, parsed.divs, previewTheme),
     [parsed, cssSource, previewTheme],
   );
 
-  // Quando srcDoc cambia, l'iframe ricarica → non è più ready
+  // Ricevi messaggi dall'iframe
   useEffect(() => {
-    iframeReadyRef.current = false;
-  }, [srcDoc]);
+    function onMsg(e: MessageEvent) {
+      const d = e.data;
+      if (!d || d.source !== "explorer") return;
+      if (d.type === "hover" && typeof d.id === "string") {
+        setActive(d.id);
+      } else if (d.type === "unhover") {
+        setActive(null);
+      } else if (d.type === "css-matched" && Array.isArray(d.ruleIds)) {
+        setMatchedRules(d.ruleIds);
+      }
+    }
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [setActive, setMatchedRules]);
 
-  // Manda lo stato corrente all'iframe
-  const sendStateToIframe = useCallback(() => {
+  // Al cambio di activeElement/mode, notifica l'iframe
+  useEffect(() => {
     const iframe = iframeRef.current;
-    if (!iframe?.contentWindow) return;
+    if (!iframe || !iframe.contentWindow) return;
     const win = iframe.contentWindow;
-    const S = "explorer-host";
 
     if (mode === "xray") {
-      win.postMessage({ source: S, type: "xray", on: true }, "*");
+      win.postMessage({ source: "explorer-host", type: "xray", on: true }, "*");
       return;
+    } else {
+      win.postMessage(
+        { source: "explorer-host", type: "xray", on: false },
+        "*",
+      );
     }
-    win.postMessage({ source: S, type: "xray", on: false }, "*");
 
     if (!activeElement) {
-      win.postMessage({ source: S, type: "clear" }, "*");
+      win.postMessage({ source: "explorer-host", type: "clear" }, "*");
       return;
     }
 
     const node = parsed.divs.get(activeElement);
     if (!node) return;
 
+    // Catena dei genitori
     const parents: { id: string; color: string }[] = [];
     let p = node.parentId;
     while (p) {
@@ -259,52 +265,35 @@ export default function BrowserFrame({
     }
 
     win.postMessage(
-      { source: S, type: "highlight", id: node.id, color: node.color, label: node.label, parents },
+      {
+        source: "explorer-host",
+        type: "highlight",
+        id: node.id,
+        color: node.color,
+        label: node.label,
+        parents,
+      },
       "*",
     );
 
+    // Chiedi quali regole CSS matchano
     if (allSelectors.length > 0) {
       win.postMessage(
         {
-          source: S,
+          source: "explorer-host",
           type: "match-css",
           id: node.id,
-          selectors: allSelectors.map((sel) => ({
-            ruleId: sel.id,
-            selector: sel.selector,
+          selectors: allSelectors.map((s) => ({
+            ruleId: s.id,
+            selector: s.selector,
           })),
         },
         "*",
       );
+    } else {
+      setMatchedRules([]);
     }
-  }, [activeElement, mode, parsed, allSelectors]);
-
-  // Ricevi messaggi dall'iframe
-  useEffect(() => {
-    function onMsg(e: MessageEvent) {
-      const d = e.data;
-      if (!d || d.source !== "explorer") return;
-      if (d.type === "ready") {
-        iframeReadyRef.current = true;
-        sendStateToIframe();
-      } else if (d.type === "hover" && typeof d.id === "string") {
-        setActive(d.id);
-      } else if (d.type === "unhover") {
-        setActive(null);
-      } else if (d.type === "css-matched" && Array.isArray(d.ruleIds)) {
-        setMatchedRules(d.ruleIds);
-      }
-    }
-    window.addEventListener("message", onMsg);
-    return () => window.removeEventListener("message", onMsg);
-  }, [sendStateToIframe, setActive, setMatchedRules]);
-
-  // Al cambio di stato, notifica l'iframe (se pronto)
-  useEffect(() => {
-    if (iframeReadyRef.current) {
-      sendStateToIframe();
-    }
-  }, [sendStateToIframe]);
+  }, [activeElement, mode, parsed, allSelectors, setMatchedRules]);
 
   // Manda il livello di zoom all'iframe
   useEffect(() => {

@@ -16,13 +16,10 @@ import CssEditorPanel from "@/components/features/CssEditorPanel";
 import InfoTooltip from "@/components/features/InfoTooltip";
 import ResizableColumns from "@/components/features/ResizableColumns";
 
-export type EditorLayout = "side" | "stacked";
-
 export default function Home() {
   const [htmlSrc, setHtmlSrc] = useState(DEFAULT_EXAMPLE.html);
   const [cssSrc, setCssSrc] = useState(DEFAULT_EXAMPLE.css);
   const [exampleId, setExampleId] = useState(DEFAULT_EXAMPLE.id);
-  const [editorLayout, setEditorLayout] = useState<EditorLayout>("side");
 
   // Debounce del sorgente per evitare re-render ad ogni keystroke
   const debouncedHtml = useDebounced(htmlSrc, 300);
@@ -51,12 +48,6 @@ export default function Home() {
     setExampleId(id);
   }
 
-  function clearAll() {
-    setHtmlSrc("");
-    setCssSrc("");
-    setExampleId("");
-  }
-
   return (
     <HighlightProvider>
       <div className="flex flex-col h-full">
@@ -65,102 +56,38 @@ export default function Home() {
           currentExample={exampleId}
           htmlSrc={htmlSrc}
           cssSrc={cssSrc}
-          editorLayout={editorLayout}
-          onToggleLayout={() =>
-            setEditorLayout((l) => (l === "side" ? "stacked" : "side"))
-          }
-          onClearAll={clearAll}
         />
 
-        {editorLayout === "side" ? (
-          <ResizableColumns
-            key="side"
-            initialWeights={[0.55, 0.225, 0.225]}
+        <ResizableColumns initialWeights={[0.55, 0.225, 0.225]}>
+          <CollapsiblePanel
+            title="Preview + Albero"
+            num={1}
+            accent="#ff6b6b"
           >
-            <CollapsiblePanel
-              title="Preview + Albero"
-              num={1}
-              accent="#ff6b6b"
-            >
-              <PreviewPanel
-                parsed={parsed}
-                cssSource={debouncedCss}
-                allSelectors={allSelectors}
-              />
-            </CollapsiblePanel>
+            <PreviewPanel
+              parsed={parsed}
+              cssSource={debouncedCss}
+              allSelectors={allSelectors}
+            />
+          </CollapsiblePanel>
 
-            <CollapsiblePanel
-              title="HTML — Struttura"
-              num={2}
-              accent="#fb923c"
-            >
-              <HtmlEditorPanel
-                value={htmlSrc}
-                onChange={setHtmlSrc}
-                parsed={parsed}
-              />
-            </CollapsiblePanel>
+          <CollapsiblePanel title="HTML — Struttura" num={2} accent="#fb923c">
+            <HtmlEditorPanel
+              value={htmlSrc}
+              onChange={setHtmlSrc}
+              parsed={parsed}
+            />
+          </CollapsiblePanel>
 
-            <CollapsiblePanel title="CSS — Stile" num={3} accent="#4ecdc4">
-              <CssEditorPanel
-                value={cssSrc}
-                onChange={setCssSrc}
-                parsed={parsed}
-                cssRules={cssRules}
-              />
-            </CollapsiblePanel>
-          </ResizableColumns>
-        ) : (
-          <ResizableColumns key="stacked" initialWeights={[0.55, 0.45]}>
-            <CollapsiblePanel
-              title="Preview + Albero"
-              num={1}
-              accent="#ff6b6b"
-            >
-              <PreviewPanel
-                parsed={parsed}
-                cssSource={debouncedCss}
-                allSelectors={allSelectors}
-              />
-            </CollapsiblePanel>
-
-            <CollapsiblePanel
-              title="HTML + CSS"
-              num={2}
-              accent="#fb923c"
-            >
-              <div className="flex flex-col h-full">
-                <div className="flex-1 min-h-0 border-b border-[var(--bd)] flex flex-col">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-[var(--sf2)] border-b border-[var(--bd)] flex-shrink-0">
-                    <span className="w-3 h-3 rounded-full bg-[#fb923c] flex items-center justify-center text-[7px] font-bold text-black">H</span>
-                    <span className="font-mono text-[9px] tracking-wider uppercase text-[var(--mu)]">HTML — Struttura</span>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <HtmlEditorPanel
-                      value={htmlSrc}
-                      onChange={setHtmlSrc}
-                      parsed={parsed}
-                    />
-                  </div>
-                </div>
-                <div className="flex-1 min-h-0 flex flex-col">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-[var(--sf2)] border-b border-[var(--bd)] flex-shrink-0">
-                    <span className="w-3 h-3 rounded-full bg-[#4ecdc4] flex items-center justify-center text-[7px] font-bold text-black">C</span>
-                    <span className="font-mono text-[9px] tracking-wider uppercase text-[var(--mu)]">CSS — Stile</span>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <CssEditorPanel
-                      value={cssSrc}
-                      onChange={setCssSrc}
-                      parsed={parsed}
-                      cssRules={cssRules}
-                    />
-                  </div>
-                </div>
-              </div>
-            </CollapsiblePanel>
-          </ResizableColumns>
-        )}
+          <CollapsiblePanel title="CSS — Stile" num={3} accent="#4ecdc4">
+            <CssEditorPanel
+              value={cssSrc}
+              onChange={setCssSrc}
+              parsed={parsed}
+              cssRules={cssRules}
+            />
+          </CollapsiblePanel>
+        </ResizableColumns>
 
         {/* Legenda concetti in fondo */}
         <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">

@@ -1,16 +1,5 @@
-// Utility per scaricare un blob come file.
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
 // Genera un file HTML completo con CSS inline e fa partire il download.
+
 export function downloadHtmlFile(
   html: string,
   css: string,
@@ -31,28 +20,15 @@ ${html}
 </body>
 </html>
 `;
-  downloadBlob(new Blob([content], { type: "text/html" }), filename);
-}
-
-// Scarica HTML e CSS come file separati (index.html che linka style.css).
-export function downloadSeparateFiles(html: string, css: string): void {
-  const htmlContent = `<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Il mio progetto</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-${html}
-</body>
-</html>
-`;
-  downloadBlob(new Blob([htmlContent], { type: "text/html" }), "index.html");
-  setTimeout(() => {
-    downloadBlob(new Blob([css], { type: "text/css" }), "style.css");
-  }, 300);
+  const blob = new Blob([content], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // Esporta il nodo SVG dell'albero come file PNG scaricabile.

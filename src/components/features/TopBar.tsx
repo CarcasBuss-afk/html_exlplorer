@@ -9,13 +9,7 @@ import {
   Moon,
   Sun,
   Download,
-  FileDown,
-  Columns2,
-  Rows2,
-  FilePlus2,
 } from "lucide-react";
-import type { EditorLayout } from "@/app/page";
-import { downloadSeparateFiles } from "@/lib/exporter";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
 import { EXAMPLES } from "@/lib/examples";
@@ -26,9 +20,6 @@ interface Props {
   currentExample: string;
   htmlSrc: string;
   cssSrc: string;
-  editorLayout: EditorLayout;
-  onToggleLayout: () => void;
-  onClearAll: () => void;
 }
 
 export default function TopBar({
@@ -36,9 +27,6 @@ export default function TopBar({
   currentExample,
   htmlSrc,
   cssSrc,
-  editorLayout,
-  onToggleLayout,
-  onClearAll,
 }: Props) {
   const { mode, setMode, clear, previewTheme, setPreviewTheme } =
     useHighlight();
@@ -62,18 +50,6 @@ export default function TopBar({
       </span>
 
       <div className="ml-auto flex items-center gap-2">
-        <button
-          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[#34d399] hover:text-[#34d399] transition-all"
-          onClick={() => {
-            if (window.confirm("Svuotare HTML e CSS per iniziare un nuovo progetto?")) {
-              onClearAll();
-            }
-          }}
-          title="Nuovo progetto: svuota HTML e CSS"
-        >
-          <FilePlus2 size={11} /> NUOVO
-        </button>
-
         <label className="text-[10px] font-mono uppercase tracking-wider text-[var(--mu)]">
           Esempio:
         </label>
@@ -88,26 +64,6 @@ export default function TopBar({
             </option>
           ))}
         </select>
-
-        <button
-          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
-          onClick={onToggleLayout}
-          title={
-            editorLayout === "side"
-              ? "Impila editor HTML e CSS verticalmente"
-              : "Affianca editor HTML e CSS"
-          }
-        >
-          {editorLayout === "side" ? (
-            <>
-              <Rows2 size={11} /> IMPILA
-            </>
-          ) : (
-            <>
-              <Columns2 size={11} /> AFFIANCA
-            </>
-          )}
-        </button>
 
         <button
           className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
@@ -130,16 +86,9 @@ export default function TopBar({
         <button
           className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[#a78bfa] hover:text-[#a78bfa] transition-all"
           onClick={handleExport}
-          title="Scarica come file unico (.html con CSS inline)"
+          title="Scarica il progetto come file HTML"
         >
-          <Download size={11} /> .HTML
-        </button>
-        <button
-          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[#4ecdc4] hover:text-[#4ecdc4] transition-all"
-          onClick={() => downloadSeparateFiles(htmlSrc, cssSrc)}
-          title="Scarica come file separati (index.html + style.css)"
-        >
-          <FileDown size={11} /> HTML+CSS
+          <Download size={11} /> SCARICA
         </button>
 
         <div className="flex items-center gap-1 ml-1">
