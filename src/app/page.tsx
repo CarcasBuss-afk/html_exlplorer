@@ -51,6 +51,12 @@ export default function Home() {
     setExampleId(id);
   }
 
+  function clearAll() {
+    setHtmlSrc("");
+    setCssSrc("");
+    setExampleId("");
+  }
+
   return (
     <HighlightProvider>
       <div className="flex flex-col h-full">
@@ -63,6 +69,7 @@ export default function Home() {
           onToggleLayout={() =>
             setEditorLayout((l) => (l === "side" ? "stacked" : "side"))
           }
+          onClearAll={clearAll}
         />
 
         {editorLayout === "side" ? (
