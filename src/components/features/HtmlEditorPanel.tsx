@@ -11,9 +11,10 @@ interface Props {
   value: string;
   onChange: (v: string) => void;
   parsed: ParsedHtml;
+  fontSize?: number;
 }
 
-export default function HtmlEditorPanel({ value, onChange, parsed }: Props) {
+export default function HtmlEditorPanel({ value, onChange, parsed, fontSize }: Props) {
   const { activeElement, mode, setActive } = useHighlight();
 
   const highlights: HighlightRange[] = useMemo(() => {
@@ -29,14 +30,9 @@ export default function HtmlEditorPanel({ value, onChange, parsed }: Props) {
     if (!activeElement) return [];
     const node = parsed.divs.get(activeElement);
     if (!node) return [];
-    const list: HighlightRange[] = [
-      {
-        lineStart: node.lineStart,
-        lineEnd: node.lineEnd,
-        color: node.color,
-      },
-    ];
-    // Catena genitori: soft
+    // Genitori PRIMA (soft) → primario ULTIMO: così su righe condivise
+    // la decorazione dell'elemento selezionato vince visivamente.
+    const list: HighlightRange[] = [];
     let p = node.parentId;
     while (p) {
       const pn = parsed.divs.get(p);
@@ -49,6 +45,11 @@ export default function HtmlEditorPanel({ value, onChange, parsed }: Props) {
       });
       p = pn.parentId;
     }
+    list.push({
+      lineStart: node.lineStart,
+      lineEnd: node.lineEnd,
+      color: node.color,
+    });
     return list;
   }, [activeElement, mode, parsed]);
 
@@ -73,6 +74,7 @@ export default function HtmlEditorPanel({ value, onChange, parsed }: Props) {
       onChange={onChange}
       highlights={highlights}
       onCursorLine={handleCursorLine}
+      fontSize={fontSize}
     />
   );
 }

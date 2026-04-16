@@ -27,6 +27,7 @@ interface Props {
   onChange: (v: string) => void;
   highlights: HighlightRange[];
   onCursorLine?: (line: number) => void;
+  fontSize?: number;
 }
 
 const THEME_NAME = "explorer-dark";
@@ -69,6 +70,7 @@ export default function CodeEditor({
   onChange,
   highlights,
   onCursorLine,
+  fontSize = 12,
 }: Props) {
   const editorRef = useRef<StandaloneEditor | null>(null);
   const monacoRef = useRef<MonacoType | null>(null);
@@ -186,7 +188,7 @@ export default function CodeEditor({
       onMount={handleMount}
       onChange={(v) => onChange(v ?? "")}
       options={{
-        fontSize: 12,
+        fontSize,
         fontFamily:
           "ui-monospace, 'Space Mono', SFMono-Regular, Consolas, monospace",
         minimap: { enabled: false },

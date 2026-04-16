@@ -23,6 +23,7 @@ export default function Home() {
   const [cssSrc, setCssSrc] = useState(DEFAULT_EXAMPLE.css);
   const [exampleId, setExampleId] = useState(DEFAULT_EXAMPLE.id);
   const [editorLayout, setEditorLayout] = useState<EditorLayout>("side");
+  const [editorFontSize, setEditorFontSize] = useState(14);
 
   // Debounce del sorgente per evitare re-render ad ogni keystroke
   const debouncedHtml = useDebounced(htmlSrc, 300);
@@ -70,6 +71,8 @@ export default function Home() {
             setEditorLayout((l) => (l === "side" ? "stacked" : "side"))
           }
           onClearAll={clearAll}
+          fontSize={editorFontSize}
+          onFontSizeChange={setEditorFontSize}
         />
 
         {editorLayout === "side" ? (
@@ -98,6 +101,7 @@ export default function Home() {
                 value={htmlSrc}
                 onChange={setHtmlSrc}
                 parsed={parsed}
+                fontSize={editorFontSize}
               />
             </CollapsiblePanel>
 
@@ -107,6 +111,7 @@ export default function Home() {
                 onChange={setCssSrc}
                 parsed={parsed}
                 cssRules={cssRules}
+                fontSize={editorFontSize}
               />
             </CollapsiblePanel>
           </ResizableColumns>
@@ -140,6 +145,7 @@ export default function Home() {
                       value={htmlSrc}
                       onChange={setHtmlSrc}
                       parsed={parsed}
+                      fontSize={editorFontSize}
                     />
                   </div>
                 </div>
@@ -154,6 +160,7 @@ export default function Home() {
                       onChange={setCssSrc}
                       parsed={parsed}
                       cssRules={cssRules}
+                      fontSize={editorFontSize}
                     />
                   </div>
                 </div>

@@ -13,6 +13,7 @@ interface Props {
   onChange: (v: string) => void;
   parsed: ParsedHtml;
   cssRules: CssRule[];
+  fontSize?: number;
 }
 
 export default function CssEditorPanel({
@@ -20,6 +21,7 @@ export default function CssEditorPanel({
   onChange,
   parsed,
   cssRules,
+  fontSize,
 }: Props) {
   const { activeElement, mode, matchedRules } = useHighlight();
 
@@ -44,6 +46,7 @@ export default function CssEditorPanel({
       value={value}
       onChange={onChange}
       highlights={highlights}
+      fontSize={fontSize}
     />
   );
 }

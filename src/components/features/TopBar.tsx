@@ -12,6 +12,8 @@ import {
   Columns2,
   Rows2,
   FilePlus2,
+  AArrowUp,
+  AArrowDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
@@ -27,6 +29,8 @@ interface Props {
   editorLayout: EditorLayout;
   onToggleLayout: () => void;
   onClearAll: () => void;
+  fontSize: number;
+  onFontSizeChange: (size: number) => void;
 }
 
 export default function TopBar({
@@ -37,6 +41,8 @@ export default function TopBar({
   editorLayout,
   onToggleLayout,
   onClearAll,
+  fontSize,
+  onFontSizeChange,
 }: Props) {
   const { mode, setMode, clear, previewTheme, setPreviewTheme } =
     useHighlight();
@@ -86,6 +92,28 @@ export default function TopBar({
             </option>
           ))}
         </select>
+
+        <div className="flex items-center gap-0.5 border border-[var(--bd)] rounded overflow-hidden">
+          <button
+            className="flex items-center px-1.5 py-1 text-[var(--mu)] bg-[var(--sf)] hover:bg-[var(--sf2)] hover:text-[var(--tx)] transition-colors disabled:opacity-30"
+            onClick={() => onFontSizeChange(Math.max(10, fontSize - 2))}
+            disabled={fontSize <= 10}
+            title="Riduci font editor"
+          >
+            <AArrowDown size={13} />
+          </button>
+          <span className="font-mono text-[9px] text-[var(--mu)] px-1 bg-[var(--sf)] min-w-[28px] text-center py-1">
+            {fontSize}
+          </span>
+          <button
+            className="flex items-center px-1.5 py-1 text-[var(--mu)] bg-[var(--sf)] hover:bg-[var(--sf2)] hover:text-[var(--tx)] transition-colors disabled:opacity-30"
+            onClick={() => onFontSizeChange(Math.min(28, fontSize + 2))}
+            disabled={fontSize >= 28}
+            title="Ingrandisci font editor"
+          >
+            <AArrowUp size={13} />
+          </button>
+        </div>
 
         <button
           className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
