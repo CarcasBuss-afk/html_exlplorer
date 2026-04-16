@@ -19,6 +19,7 @@ interface Props {
   cssSource: string;
   allSelectors: { id: string; selector: string }[];
   previewTheme: "light" | "dark";
+  zoom: number;
 }
 
 // Script iniettato nell'iframe. Mantenuto come stringa per srcdoc.
@@ -139,6 +140,9 @@ const IFRAME_SCRIPT = `
         document.body.classList.remove('__xp-xray');
         document.querySelectorAll('.__xp-label').forEach(function(el) { el.remove(); });
       }
+    } else if (d.type === 'zoom') {
+      document.documentElement.style.transformOrigin = '0 0';
+      document.documentElement.style.transform = 'scale(' + (d.level || 1) + ')';
     } else if (d.type === 'match-css') {
       const el = document.querySelector('[data-explorer-id="' + d.id + '"]');
       const matched = [];
@@ -199,6 +203,7 @@ export default function BrowserFrame({
   cssSource,
   allSelectors,
   previewTheme,
+  zoom,
 }: Props) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { activeElement, mode, setMatchedRules, setActive } = useHighlight();
@@ -289,6 +294,16 @@ export default function BrowserFrame({
       setMatchedRules([]);
     }
   }, [activeElement, mode, parsed, allSelectors, setMatchedRules]);
+
+  // Manda il livello di zoom all'iframe
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
+    iframe.contentWindow.postMessage(
+      { source: "explorer-host", type: "zoom", level: zoom },
+      "*",
+    );
+  }, [zoom]);
 
   return (
     <div className="bg-[#111122] rounded-lg border border-[var(--bd)] overflow-hidden h-full w-full flex flex-col">
