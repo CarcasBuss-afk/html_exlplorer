@@ -97,6 +97,13 @@ const IFRAME_SCRIPT = `
     else post('unhover', {});
   }, { passive: true });
 
+  // Blocca la navigazione sui link: nella preview non ha senso uscire
+  // dalla pagina (eviti l'effetto matrioska con l'app stessa dentro iframe).
+  document.addEventListener('click', function(e) {
+    const a = e.target && e.target.closest ? e.target.closest('a') : null;
+    if (a) e.preventDefault();
+  }, true);
+
   function clearAll() {
     document.querySelectorAll('.__xp-active, .__xp-parent').forEach(function(el) {
       el.classList.remove('__xp-active');
