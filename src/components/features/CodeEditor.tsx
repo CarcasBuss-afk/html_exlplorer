@@ -78,6 +78,14 @@ export default function CodeEditor({
   const styleInjectedRef = useRef(false);
   const [ready, setReady] = useState(false);
 
+  // Ref sempre aggiornata alla versione corrente di onCursorLine.
+  // Monaco registra il listener una sola volta al mount: senza questa ref
+  // la chiusura catturerebbe il parsed/activeElement iniziali (stale).
+  const onCursorLineRef = useRef(onCursorLine);
+  useEffect(() => {
+    onCursorLineRef.current = onCursorLine;
+  }, [onCursorLine]);
+
   // Configura Monaco con i worker locali prima di montare l'Editor.
   useEffect(() => {
     setupMonaco().then(() => setReady(true));
@@ -119,11 +127,9 @@ export default function CodeEditor({
     defineTheme(monaco);
     monaco.editor.setTheme(THEME_NAME);
 
-    if (onCursorLine) {
-      editor.onDidChangeCursorPosition((e) => {
-        onCursorLine(e.position.lineNumber);
-      });
-    }
+    editor.onDidChangeCursorPosition((e) => {
+      onCursorLineRef.current?.(e.position.lineNumber);
+    });
   };
 
   // Applica decorations a ogni cambio di highlights
