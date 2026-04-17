@@ -27,6 +27,9 @@ interface Props {
   onChange: (v: string) => void;
   highlights: HighlightRange[];
   onCursorLine?: (line: number) => void;
+  // Richiesto quando l'utente clicca fuori dal testo:
+  // serve a pulire la selezione sincronizzata tra i pannelli.
+  onClearSelection?: () => void;
   fontSize?: number;
 }
 
@@ -70,6 +73,7 @@ export default function CodeEditor({
   onChange,
   highlights,
   onCursorLine,
+  onClearSelection,
   fontSize = 12,
 }: Props) {
   const editorRef = useRef<StandaloneEditor | null>(null);
@@ -78,13 +82,17 @@ export default function CodeEditor({
   const styleInjectedRef = useRef(false);
   const [ready, setReady] = useState(false);
 
-  // Ref sempre aggiornata alla versione corrente di onCursorLine.
-  // Monaco registra il listener una sola volta al mount: senza questa ref
+  // Ref sempre aggiornate alla versione corrente delle callback.
+  // Monaco registra i listener una sola volta al mount: senza queste ref
   // la chiusura catturerebbe il parsed/activeElement iniziali (stale).
   const onCursorLineRef = useRef(onCursorLine);
+  const onClearSelectionRef = useRef(onClearSelection);
   useEffect(() => {
     onCursorLineRef.current = onCursorLine;
   }, [onCursorLine]);
+  useEffect(() => {
+    onClearSelectionRef.current = onClearSelection;
+  }, [onClearSelection]);
 
   // Configura Monaco con i worker locali prima di montare l'Editor.
   useEffect(() => {
@@ -129,6 +137,15 @@ export default function CodeEditor({
 
     editor.onDidChangeCursorPosition((e) => {
       onCursorLineRef.current?.(e.position.lineNumber);
+    });
+
+    // Click fuori dal testo (zona nera sotto/oltre il codice): deseleziona.
+    const MT = monaco.editor.MouseTargetType;
+    editor.onMouseDown((e) => {
+      const t = e.target?.type;
+      if (t === MT.CONTENT_EMPTY || t === MT.OUTSIDE_EDITOR) {
+        onClearSelectionRef.current?.();
+      }
     });
   };
 

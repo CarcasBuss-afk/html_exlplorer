@@ -74,6 +74,7 @@ export default function HtmlEditorPanel({ value, onChange, parsed, fontSize }: P
       onChange={onChange}
       highlights={highlights}
       onCursorLine={handleCursorLine}
+      onClearSelection={() => setActive(null)}
       fontSize={fontSize}
     />
   );
