@@ -1,8 +1,9 @@
 "use client";
 
-// Layout a N colonne con divisori trascinabili orizzontalmente.
-// Ogni colonna parte con un peso (flex-basis %) che l'utente può modificare
-// trascinando il divisore tra due colonne.
+// Layout a N pannelli con divisori trascinabili.
+// direction="row"    → pannelli in riga,  divisori verticali   (trascinamento X)
+// direction="column" → pannelli in colonna, divisori orizzontali (trascinamento Y)
+// Ogni pannello parte con un peso (flex-basis %) che l'utente può modificare.
 // Le colonne collassate (CollapsiblePanel.shut) non sono gestite qui:
 // il CollapsiblePanel forza il proprio flex, il nostro peso è solo default.
 
@@ -17,21 +18,27 @@ import {
   type ReactNode,
 } from "react";
 
+type Direction = "row" | "column";
+
 interface Props {
   children: ReactNode;
   // Pesi iniziali (somma = 1). Se undefined, ugualmente distribuiti.
   initialWeights?: number[];
-  // Larghezza minima di ogni colonna in px (per evitare collasso involontario)
-  minColPx?: number;
+  // Dimensione minima di ogni pannello in px (per evitare collasso involontario)
+  minSizePx?: number;
+  // Orientamento dei pannelli
+  direction?: Direction;
 }
 
 export default function ResizableColumns({
   children,
   initialWeights,
-  minColPx = 140,
+  minSizePx = 140,
+  direction = "row",
 }: Props) {
   const kids = Children.toArray(children).filter(isValidElement);
   const n = kids.length;
+  const isRow = direction === "row";
 
   const [weights, setWeights] = useState<number[]>(() => {
     if (initialWeights && initialWeights.length === n) return initialWeights;
@@ -41,10 +48,10 @@ export default function ResizableColumns({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState<{
     index: number;
-    startX: number;
+    startCoord: number;
     startLeft: number;
     startRight: number;
-    containerWidth: number;
+    containerSize: number;
   } | null>(null);
 
   // Listener globali attivi solo durante il drag
@@ -52,10 +59,11 @@ export default function ResizableColumns({
     if (!dragging) return;
 
     function onMove(e: MouseEvent) {
-      const dx = e.clientX - dragging!.startX;
-      const totalPx = dragging!.containerWidth;
-      const minFrac = minColPx / totalPx;
-      const dFrac = dx / totalPx;
+      const coord = isRow ? e.clientX : e.clientY;
+      const d = coord - dragging!.startCoord;
+      const total = dragging!.containerSize;
+      const minFrac = minSizePx / total;
+      const dFrac = d / total;
 
       setWeights((w) => {
         const next = [...w];
@@ -85,7 +93,7 @@ export default function ResizableColumns({
     // Cursor + disable selection durante il drag
     const prevCursor = document.body.style.cursor;
     const prevSelect = document.body.style.userSelect;
-    document.body.style.cursor = "col-resize";
+    document.body.style.cursor = isRow ? "col-resize" : "row-resize";
     document.body.style.userSelect = "none";
 
     return () => {
@@ -94,7 +102,7 @@ export default function ResizableColumns({
       document.body.style.cursor = prevCursor;
       document.body.style.userSelect = prevSelect;
     };
-  }, [dragging, minColPx]);
+  }, [dragging, minSizePx, isRow]);
 
   function startDrag(index: number, e: React.MouseEvent) {
     e.preventDefault();
@@ -102,38 +110,79 @@ export default function ResizableColumns({
     if (!container) return;
     setDragging({
       index,
-      startX: e.clientX,
+      startCoord: isRow ? e.clientX : e.clientY,
       startLeft: weights[index],
       startRight: weights[index + 1],
-      containerWidth: container.clientWidth,
+      containerSize: isRow ? container.clientWidth : container.clientHeight,
     });
   }
 
+  // Classi del divisore in base alla direzione
+  const dividerCls = isRow
+    ? "w-1 hover:w-1.5 cursor-col-resize"
+    : "h-1 hover:h-1.5 cursor-row-resize";
+  const dividerHitCls = isRow
+    ? "absolute inset-y-0 -left-1 -right-1"
+    : "absolute inset-x-0 -top-1 -bottom-1";
+  const dividerMargin = isRow ? "0 -1px" : "-1px 0";
+
   return (
-    <div ref={containerRef} className="flex flex-1 min-h-0">
-      {kids.map((child, i) => {
-        // Il CollapsiblePanel riceve il weight come prop; se passa un weight
-        // prop al figlio, lo sovrascriviamo con il nostro stato.
-        const cloned = cloneElement(
-          child as ReactElement<{ weight?: number }>,
-          { weight: weights[i] * n } as { weight: number },
-        );
-        return (
-          <div className="contents" key={i}>
-            {cloned}
-            {i < n - 1 ? (
-              <div
-                onMouseDown={(e) => startDrag(i, e)}
-                className="w-1 hover:w-1.5 bg-transparent hover:bg-[var(--sf3)] cursor-col-resize flex-shrink-0 transition-all z-20 relative"
-                style={{ margin: "0 -1px" }}
-                title="Trascina per ridimensionare"
-              >
-                <div className="absolute inset-y-0 -left-1 -right-1" />
-              </div>
-            ) : null}
-          </div>
-        );
-      })}
-    </div>
+    <>
+      <div
+        ref={containerRef}
+        className={
+          isRow
+            ? "flex flex-1 min-h-0"
+            : "flex flex-col h-full w-full min-w-0 min-h-0"
+        }
+      >
+        {kids.map((child, i) => {
+          // direction="row": il CollapsiblePanel legge la prop weight e
+          // gestisce collasso/min-width da solo.
+          // direction="column": i figli sono <div> già in flex-col, gli
+          // applichiamo il flex direttamente via style (evita wrapper extra
+          // che romperebbe il layout interno).
+          const rendered = isRow
+            ? cloneElement(
+                child as ReactElement<{ weight?: number }>,
+                { weight: weights[i] * n } as { weight: number },
+              )
+            : cloneElement(
+                child as ReactElement<{ style?: React.CSSProperties }>,
+                {
+                  style: {
+                    ...(child as ReactElement<{ style?: React.CSSProperties }>)
+                      .props?.style,
+                    flex: `${weights[i] * n} 1 0`,
+                    minHeight: 0,
+                  },
+                },
+              );
+          return (
+            <div className="contents" key={i}>
+              {rendered}
+              {i < n - 1 ? (
+                <div
+                  onMouseDown={(e) => startDrag(i, e)}
+                  className={`${dividerCls} bg-transparent hover:bg-[var(--sf3)] flex-shrink-0 transition-all z-20 relative`}
+                  style={{ margin: dividerMargin }}
+                  title="Trascina per ridimensionare"
+                >
+                  <div className={dividerHitCls} />
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+      {/* Overlay durante il drag: cattura mousemove/mouseup anche sopra
+          iframe e Monaco, evitando che il drag resti "bloccato". */}
+      {dragging ? (
+        <div
+          className="fixed inset-0 z-50"
+          style={{ cursor: isRow ? "col-resize" : "row-resize" }}
+        />
+      ) : null}
+    </>
   );
 }
