@@ -58,6 +58,12 @@ export default function Home() {
     setExampleId("");
   }
 
+  function loadFile(html: string, css: string) {
+    setHtmlSrc(html);
+    setCssSrc(css);
+    setExampleId("");
+  }
+
   return (
     <HighlightProvider>
       <div className="flex flex-col h-full">
@@ -71,6 +77,7 @@ export default function Home() {
             setEditorLayout((l) => (l === "side" ? "stacked" : "side"))
           }
           onClearAll={clearAll}
+          onLoadFile={loadFile}
           fontSize={editorFontSize}
           onFontSizeChange={setEditorFontSize}
         />

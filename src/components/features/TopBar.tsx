@@ -9,16 +9,19 @@ import {
   Moon,
   Sun,
   Download,
+  Upload,
   Columns2,
   Rows2,
   FilePlus2,
   AArrowUp,
   AArrowDown,
 } from "lucide-react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
 import { EXAMPLES } from "@/lib/examples";
 import { downloadHtmlFile } from "@/lib/exporter";
+import { parseHtmlFile } from "@/lib/importer";
 import type { EditorLayout } from "@/app/page";
 
 interface Props {
@@ -29,6 +32,7 @@ interface Props {
   editorLayout: EditorLayout;
   onToggleLayout: () => void;
   onClearAll: () => void;
+  onLoadFile: (html: string, css: string) => void;
   fontSize: number;
   onFontSizeChange: (size: number) => void;
 }
@@ -41,16 +45,33 @@ export default function TopBar({
   editorLayout,
   onToggleLayout,
   onClearAll,
+  onLoadFile,
   fontSize,
   onFontSizeChange,
 }: Props) {
   const { mode, setMode, clear, previewTheme, setPreviewTheme } =
     useHighlight();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleExport() {
     const ex = EXAMPLES.find((e) => e.id === currentExample);
     const fname = ex ? `${ex.id}.html` : "mio-progetto.html";
     downloadHtmlFile(htmlSrc, cssSrc, fname);
+  }
+
+  function handleFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    // Reset del value così si può ricaricare lo stesso file.
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === "string" ? reader.result : "";
+      const { html, css } = parseHtmlFile(text);
+      onLoadFile(html, css);
+      clear();
+    };
+    reader.readAsText(file);
   }
 
   return (
@@ -77,6 +98,21 @@ export default function TopBar({
         >
           <FilePlus2 size={11} /> NUOVO
         </button>
+
+        <button
+          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[#60a5fa] hover:text-[#60a5fa] transition-all"
+          onClick={() => fileInputRef.current?.click()}
+          title="Carica un file HTML salvato in precedenza"
+        >
+          <Upload size={11} /> CARICA
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".html,text/html"
+          hidden
+          onChange={handleFileChosen}
+        />
 
         <label className="text-[10px] font-mono uppercase tracking-wider text-[var(--mu)]">
           Esempio:
