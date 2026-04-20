@@ -53,10 +53,7 @@ export const EXERCISES: Exercise[] = [
   text-decoration: none;
   font-weight: 700;
 }`,
-    starterHtml: `<!-- Costruisci qui la tua navbar.
-     Suggerimento: usa <nav class="navbar">,
-     dentro metti un <div class="logo"> e un <div class="menu"> con 3 <a>. -->
-`,
+    starterHtml: ``,
     starterCss: `.navbar {
   display: flex;
   justify-content: space-between;
@@ -133,9 +130,7 @@ export const EXERCISES: Exercise[] = [
   font-weight: 700;
   cursor: pointer;
 }`,
-    starterHtml: `<!-- Crea un <article class="card"> che contiene:
-     un <h3 class="titolo">, un <p class="prezzo"> e un <button class="btn">. -->
-`,
+    starterHtml: ``,
     starterCss: `.card {
   width: 240px;
   background: #1c1c38;
@@ -207,9 +202,7 @@ export const EXERCISES: Exercise[] = [
   font-weight: 700;
   font-family: sans-serif;
 }`,
-    starterHtml: `<!-- Crea un <div class="galleria"> che contiene 3 <div class="box">.
-     Dentro ogni box metti una parola (Uno, Due, Tre). -->
-`,
+    starterHtml: ``,
     starterCss: `/* Scrivi qui le regole .galleria e .box.
    Suggerimento: la galleria deve avere display: flex.
    Ai box conviene dare flex: 1 per farli riempire lo spazio. */
