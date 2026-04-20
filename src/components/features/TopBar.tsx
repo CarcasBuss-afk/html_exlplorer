@@ -15,14 +15,17 @@ import {
   FilePlus2,
   AArrowUp,
   AArrowDown,
+  GraduationCap,
 } from "lucide-react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
 import { EXAMPLES } from "@/lib/examples";
+import { EXERCISES } from "@/lib/exercises";
 import { downloadHtmlFile } from "@/lib/exporter";
 import { parseHtmlFile } from "@/lib/importer";
 import type { EditorLayout } from "@/app/page";
+import type { ExerciseProgress } from "@/types/explorer";
 
 interface Props {
   onLoadExample: (id: string) => void;
@@ -35,6 +38,10 @@ interface Props {
   onLoadFile: (html: string, css: string) => void;
   fontSize: number;
   onFontSizeChange: (size: number) => void;
+  onStartExercise: (id: string) => void;
+  activeExerciseId: string | null;
+  exerciseProgress: ExerciseProgress;
+  layoutToggleDisabled: boolean;
 }
 
 export default function TopBar({
@@ -48,7 +55,13 @@ export default function TopBar({
   onLoadFile,
   fontSize,
   onFontSizeChange,
+  onStartExercise,
+  activeExerciseId,
+  exerciseProgress,
+  layoutToggleDisabled,
 }: Props) {
+  const completedCount = Object.values(exerciseProgress).filter(Boolean).length;
+  const totalExercises = EXERCISES.length;
   const { mode, setMode, clear, previewTheme, setPreviewTheme } =
     useHighlight();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -114,6 +127,31 @@ export default function TopBar({
           onChange={handleFileChosen}
         />
 
+        <label className="text-[10px] font-mono uppercase tracking-wider text-[var(--mu)] flex items-center gap-1">
+          <GraduationCap size={12} className="text-[#a78bfa]" />
+          Esercizio:
+        </label>
+        <select
+          value={activeExerciseId ?? ""}
+          onChange={(e) => {
+            if (e.target.value) onStartExercise(e.target.value);
+          }}
+          className="bg-[var(--sf2)] border border-[var(--bd)] text-[var(--tx)] text-[11px] rounded px-2 py-1 font-mono focus:outline-none focus:border-[#a78bfa]"
+          title={`Completati: ${completedCount}/${totalExercises}`}
+        >
+          <option value="">
+            {completedCount > 0
+              ? `— scegli (${completedCount}/${totalExercises}) —`
+              : "— scegli un esercizio —"}
+          </option>
+          {EXERCISES.map((ex) => (
+            <option key={ex.id} value={ex.id}>
+              {exerciseProgress[ex.id] ? "✓ " : ""}
+              Liv. {ex.level} · {ex.title}
+            </option>
+          ))}
+        </select>
+
         <label className="text-[10px] font-mono uppercase tracking-wider text-[var(--mu)]">
           Esempio:
         </label>
@@ -152,9 +190,16 @@ export default function TopBar({
         </div>
 
         <button
-          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all"
+          className="flex items-center gap-1.5 font-mono text-[10px] px-2.5 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-[var(--bd)] disabled:hover:text-[var(--mu)]"
           onClick={onToggleLayout}
-          title={editorLayout === "side" ? "Impila editor verticalmente" : "Affianca editor"}
+          disabled={layoutToggleDisabled}
+          title={
+            layoutToggleDisabled
+              ? "Layout bloccato durante l'esercizio"
+              : editorLayout === "side"
+                ? "Impila editor verticalmente"
+                : "Affianca editor"
+          }
         >
           {editorLayout === "side" ? (
             <><Rows2 size={11} /> IMPILA</>

@@ -1,13 +1,21 @@
 "use client";
 
-// Pagina principale: orchestra editor, parsing, preview, albero e tooltip.
+// Pagina principale: orchestra editor, parsing, preview, albero, tooltip
+// e la modalità esercizio (layout dedicato + checklist auto-verificata).
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HighlightProvider } from "@/hooks/useHighlight";
 import { useDebounced } from "@/hooks/useDebounced";
 import { parseHtml } from "@/lib/htmlParser";
 import { parseCss, splitSelectors } from "@/lib/cssParser";
 import { DEFAULT_EXAMPLE, EXAMPLES } from "@/lib/examples";
+import { findExercise } from "@/lib/exercises";
+import { loadProgress, markCompleted } from "@/lib/progressStorage";
+import type {
+  CheckResult,
+  Exercise,
+  ExerciseProgress,
+} from "@/types/explorer";
 import TopBar from "@/components/features/TopBar";
 import CollapsiblePanel from "@/components/features/CollapsiblePanel";
 import PreviewPanel from "@/components/features/PreviewPanel";
@@ -15,6 +23,9 @@ import HtmlEditorPanel from "@/components/features/HtmlEditorPanel";
 import CssEditorPanel from "@/components/features/CssEditorPanel";
 import InfoTooltip from "@/components/features/InfoTooltip";
 import ResizableColumns from "@/components/features/ResizableColumns";
+import ExerciseBar from "@/components/features/ExerciseBar";
+import ChecklistBar from "@/components/features/ChecklistBar";
+import ExerciseLayout from "@/components/features/ExerciseLayout";
 
 export type EditorLayout = "side" | "stacked";
 
@@ -25,6 +36,18 @@ export default function Home() {
   const [editorLayout, setEditorLayout] = useState<EditorLayout>("side");
   const [editorFontSize, setEditorFontSize] = useState(14);
 
+  // Modalità esercizio
+  const [activeExercise, setActiveExercise] = useState<Exercise | null>(null);
+  const [progress, setProgress] = useState<ExerciseProgress>({});
+
+  // Carica i progressi salvati dal localStorage al primo render lato client.
+  // È un'idratazione da API browser (localStorage non disponibile in SSR),
+  // quindi richiede setState in effect.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setProgress(loadProgress());
+  }, []);
+
   // Debounce del sorgente per evitare re-render ad ogni keystroke
   const debouncedHtml = useDebounced(htmlSrc, 300);
   const debouncedCss = useDebounced(cssSrc, 300);
@@ -33,7 +56,6 @@ export default function Home() {
   const cssRules = useMemo(() => parseCss(debouncedCss), [debouncedCss]);
 
   // Espandi i selettori composti (h1, h2 → [h1, h2]) per il matching in iframe.
-  // Ogni selettore singolo resta collegato alla sua regola originale tramite ruleId.
   const allSelectors = useMemo(() => {
     const out: { id: string; selector: string }[] = [];
     for (const r of cssRules) {
@@ -43,6 +65,26 @@ export default function Home() {
     }
     return out;
   }, [cssRules]);
+
+  // Verifica dei check solo in modalità esercizio
+  const checkResults: CheckResult[] = useMemo(() => {
+    if (!activeExercise) return [];
+    const ctx = { parsed, cssRules, cssSource: debouncedCss };
+    return activeExercise.checks.map((c) => c(ctx));
+  }, [activeExercise, parsed, cssRules, debouncedCss]);
+
+  // Quando tutti i check diventano verdi, marca l'esercizio come completato.
+  // Lo stato progress persiste in localStorage (effetto esterno legittimo),
+  // quindi setState qui è voluto.
+  useEffect(() => {
+    if (!activeExercise || checkResults.length === 0) return;
+    const allOk = checkResults.every((r) => r.ok);
+    if (allOk && !progress[activeExercise.id]) {
+      const updated = markCompleted(activeExercise.id);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setProgress(updated);
+    }
+  }, [activeExercise, checkResults, progress]);
 
   function loadExample(id: string) {
     const ex = EXAMPLES.find((e) => e.id === id);
@@ -64,6 +106,27 @@ export default function Home() {
     setExampleId("");
   }
 
+  function startExercise(id: string) {
+    const ex = findExercise(id);
+    if (!ex) return;
+    setActiveExercise(ex);
+    setHtmlSrc(ex.starterHtml);
+    setCssSrc(ex.starterCss);
+    setExampleId("");
+  }
+
+  function exitExercise() {
+    setActiveExercise(null);
+  }
+
+  function restartExercise() {
+    if (!activeExercise) return;
+    setHtmlSrc(activeExercise.starterHtml);
+    setCssSrc(activeExercise.starterCss);
+  }
+
+  const inExercise = activeExercise !== null;
+
   return (
     <HighlightProvider>
       <div className="flex flex-col h-full">
@@ -80,9 +143,35 @@ export default function Home() {
           onLoadFile={loadFile}
           fontSize={editorFontSize}
           onFontSizeChange={setEditorFontSize}
+          onStartExercise={startExercise}
+          activeExerciseId={activeExercise?.id ?? null}
+          exerciseProgress={progress}
+          layoutToggleDisabled={inExercise}
         />
 
-        {editorLayout === "side" ? (
+        {inExercise && activeExercise ? (
+          <ExerciseBar
+            exercise={activeExercise}
+            onRestart={restartExercise}
+            onExit={exitExercise}
+            completed={!!progress[activeExercise.id]}
+          />
+        ) : null}
+
+        {inExercise && activeExercise ? (
+          <ExerciseLayout
+            exercise={activeExercise}
+            htmlSrc={htmlSrc}
+            cssSrc={cssSrc}
+            onHtmlChange={setHtmlSrc}
+            onCssChange={setCssSrc}
+            parsed={parsed}
+            cssSource={debouncedCss}
+            cssRules={cssRules}
+            allSelectors={allSelectors}
+            fontSize={editorFontSize}
+          />
+        ) : editorLayout === "side" ? (
           <ResizableColumns
             key="side"
             initialWeights={[0.55, 0.225, 0.225]}
@@ -180,21 +269,25 @@ export default function Home() {
           </ResizableColumns>
         )}
 
-        {/* Legenda concetti in fondo */}
-        <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">
-          <LegendItem icon="👻" label="Div invisibili" desc="usa Raggi X" />
-          <LegendItem
-            icon="👆"
-            label="Genitore → Figlio"
-            desc="chi contiene chi"
-          />
-          <LegendItem
-            icon="👫"
-            label="Fratelli"
-            desc="stesso livello, stesso genitore"
-          />
-          <LegendItem icon="🎨" label="HTML = struttura · CSS = stile" />
-        </div>
+        {/* Footer: checklist in modalità esercizio, legenda altrimenti */}
+        {inExercise ? (
+          <ChecklistBar results={checkResults} />
+        ) : (
+          <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">
+            <LegendItem icon="👻" label="Div invisibili" desc="usa Raggi X" />
+            <LegendItem
+              icon="👆"
+              label="Genitore → Figlio"
+              desc="chi contiene chi"
+            />
+            <LegendItem
+              icon="👫"
+              label="Fratelli"
+              desc="stesso livello, stesso genitore"
+            />
+            <LegendItem icon="🎨" label="HTML = struttura · CSS = stile" />
+          </div>
+        )}
 
         <InfoTooltip parsed={parsed} />
       </div>

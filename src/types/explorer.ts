@@ -47,3 +47,45 @@ export interface ExplorerMessage {
   type: string;
   [key: string]: unknown;
 }
+
+// ——————————————————————————————————————————————————————————
+// Sistema esercizi
+// ——————————————————————————————————————————————————————————
+
+// Risultato di un singolo check eseguito sul codice dello studente.
+export interface CheckResult {
+  ok: boolean;
+  // Messaggio breve mostrato nella checklist (es. "Contiene un <nav>")
+  message: string;
+}
+
+// Contesto passato a ogni check: HTML parsato + regole CSS + sorgente CSS
+// grezzo (utile per controllare proprietà tipo "display: flex").
+export interface CheckContext {
+  parsed: ParsedHtml;
+  cssRules: CssRule[];
+  cssSource: string;
+}
+
+// Funzione di verifica: riceve il contesto e ritorna ok/messaggio.
+export type CheckFn = (ctx: CheckContext) => CheckResult;
+
+// Definizione di un esercizio didattico.
+export interface Exercise {
+  id: string;
+  level: number; // 1, 2, 3... per ordinamento e badge livello
+  title: string;
+  // Una riga di consegna per lo studente (il target è visivo, non testuale)
+  consegna: string;
+  // Codice del modello da replicare (renderizzato read-only)
+  targetHtml: string;
+  targetCss: string;
+  // Codice iniziale da cui parte lo studente
+  starterHtml: string;
+  starterCss: string;
+  // Lista di check eseguiti ad ogni modifica del codice
+  checks: CheckFn[];
+}
+
+// Mappa degli esercizi completati salvata in localStorage.
+export type ExerciseProgress = Record<string, boolean>;
