@@ -52,7 +52,7 @@ export const CH4_EXERCISES: Exercise[] = [
       hasClass("box", "I figli hanno classe .box"),
       hasCssRule(".galleria", "Esiste la regola .galleria"),
       cssRuleHasProperty(
-        "\\.galleria",
+        ".galleria",
         "display",
         "flex",
         ".galleria ha display: flex",
