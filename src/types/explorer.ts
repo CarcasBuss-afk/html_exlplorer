@@ -70,13 +70,28 @@ export interface CheckContext {
 // Funzione di verifica: riceve il contesto e ritorna ok/messaggio.
 export type CheckFn = (ctx: CheckContext) => CheckResult;
 
+// Capitolo didattico: raggruppa N esercizi attorno a un concetto.
+export interface Chapter {
+  id: number; // 1, 2, 3... ordine di studio consigliato
+  title: string;
+  description: string;
+  // Colore d'accento usato nella sidebar e nei badge
+  accent: string;
+}
+
 // Definizione di un esercizio didattico.
 export interface Exercise {
   id: string;
-  level: number; // 1, 2, 3... per ordinamento e badge livello
+  // Capitolo di appartenenza (es. 4 = "Flexbox")
+  chapter: number;
+  // Ordine dentro il capitolo (1, 2, 3...) per sequenziamento
+  order: number;
   title: string;
-  // Una riga di consegna per lo studente (il target è visivo, non testuale)
+  // Una riga di consegna concreta per lo studente
   consegna: string;
+  // Teoria breve opzionale: 1-3 frasi sul concetto nuovo.
+  // Mostrata sopra la consegna in una sezione collassabile.
+  intro?: string;
   // Codice del modello da replicare (renderizzato read-only)
   targetHtml: string;
   targetCss: string;

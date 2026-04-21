@@ -1,7 +1,7 @@
 "use client";
 
-// Pagina principale: orchestra editor, parsing, preview, albero, tooltip
-// e la modalità esercizio (layout dedicato + checklist auto-verificata).
+// Pagina principale: orchestra editor, parsing, preview, albero, tooltip,
+// sidebar del percorso didattico e modalità esercizio.
 
 import { useEffect, useMemo, useState } from "react";
 import { HighlightProvider } from "@/hooks/useHighlight";
@@ -9,7 +9,12 @@ import { useDebounced } from "@/hooks/useDebounced";
 import { parseHtml } from "@/lib/htmlParser";
 import { parseCss, splitSelectors } from "@/lib/cssParser";
 import { DEFAULT_EXAMPLE, EXAMPLES } from "@/lib/examples";
-import { findExercise } from "@/lib/exercises";
+import {
+  CHAPTERS,
+  EXERCISES,
+  adjacentExercises,
+  findExercise,
+} from "@/lib/exercises";
 import { loadProgress, markCompleted } from "@/lib/progressStorage";
 import type {
   CheckResult,
@@ -26,6 +31,7 @@ import ResizableColumns from "@/components/features/ResizableColumns";
 import ExerciseBar from "@/components/features/ExerciseBar";
 import ChecklistBar from "@/components/features/ChecklistBar";
 import ExerciseLayout from "@/components/features/ExerciseLayout";
+import ExerciseSidebar from "@/components/features/ExerciseSidebar";
 
 export type EditorLayout = "side" | "stacked";
 
@@ -39,6 +45,7 @@ export default function Home() {
   // Modalità esercizio
   const [activeExercise, setActiveExercise] = useState<Exercise | null>(null);
   const [progress, setProgress] = useState<ExerciseProgress>({});
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Carica i progressi salvati dal localStorage al primo render lato client.
   // È un'idratazione da API browser (localStorage non disponibile in SSR),
@@ -66,6 +73,26 @@ export default function Home() {
     return out;
   }, [cssRules]);
 
+  // Mappa capitolo → lista esercizi, per la sidebar.
+  const exercisesByChapter = useMemo(() => {
+    const m = new Map<number, Exercise[]>();
+    for (const ch of CHAPTERS) m.set(ch.id, []);
+    for (const ex of EXERCISES) {
+      const list = m.get(ex.chapter);
+      if (list) list.push(ex);
+    }
+    return m;
+  }, []);
+
+  // Esercizi precedente/successivo rispetto a quello attivo (per navigazione)
+  const adjacent = useMemo(
+    () =>
+      activeExercise
+        ? adjacentExercises(activeExercise.id)
+        : { prev: null, next: null },
+    [activeExercise],
+  );
+
   // Verifica dei check solo in modalità esercizio
   const checkResults: CheckResult[] = useMemo(() => {
     if (!activeExercise) return [];
@@ -74,8 +101,7 @@ export default function Home() {
   }, [activeExercise, parsed, cssRules, debouncedCss]);
 
   // Quando tutti i check diventano verdi, marca l'esercizio come completato.
-  // Lo stato progress persiste in localStorage (effetto esterno legittimo),
-  // quindi setState qui è voluto.
+  // Lo stato progress persiste in localStorage (effetto esterno legittimo).
   useEffect(() => {
     if (!activeExercise || checkResults.length === 0) return;
     const allOk = checkResults.every((r) => r.ok);
@@ -125,6 +151,14 @@ export default function Home() {
     setCssSrc(activeExercise.starterCss);
   }
 
+  function goPrev() {
+    if (adjacent.prev) startExercise(adjacent.prev.id);
+  }
+
+  function goNext() {
+    if (adjacent.next) startExercise(adjacent.next.id);
+  }
+
   const inExercise = activeExercise !== null;
 
   return (
@@ -143,151 +177,167 @@ export default function Home() {
           onLoadFile={loadFile}
           fontSize={editorFontSize}
           onFontSizeChange={setEditorFontSize}
-          onStartExercise={startExercise}
-          activeExerciseId={activeExercise?.id ?? null}
-          exerciseProgress={progress}
           layoutToggleDisabled={inExercise}
         />
 
-        {inExercise && activeExercise ? (
-          <ExerciseBar
-            exercise={activeExercise}
-            onRestart={restartExercise}
-            onExit={exitExercise}
-            completed={!!progress[activeExercise.id]}
+        {/* Area principale: sidebar a sinistra + contenuto a destra */}
+        <div className="flex flex-1 min-h-0">
+          <ExerciseSidebar
+            chapters={CHAPTERS}
+            exercisesByChapter={exercisesByChapter}
+            activeExerciseId={activeExercise?.id ?? null}
+            progress={progress}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
+            onSelectExercise={startExercise}
           />
-        ) : null}
 
-        {inExercise && activeExercise ? (
-          <ExerciseLayout
-            exercise={activeExercise}
-            htmlSrc={htmlSrc}
-            cssSrc={cssSrc}
-            onHtmlChange={setHtmlSrc}
-            onCssChange={setCssSrc}
-            parsed={parsed}
-            cssSource={debouncedCss}
-            cssRules={cssRules}
-            allSelectors={allSelectors}
-            fontSize={editorFontSize}
-          />
-        ) : editorLayout === "side" ? (
-          <ResizableColumns
-            key="side"
-            initialWeights={[0.55, 0.225, 0.225]}
-          >
-            <CollapsiblePanel
-              title="Preview + Albero"
-              num={1}
-              accent="#ff6b6b"
-            >
-              <PreviewPanel
+          <div className="flex flex-col flex-1 min-w-0">
+            {inExercise && activeExercise ? (
+              <ExerciseBar
+                exercise={activeExercise}
+                onRestart={restartExercise}
+                onExit={exitExercise}
+                completed={!!progress[activeExercise.id]}
+                hasPrev={!!adjacent.prev}
+                hasNext={!!adjacent.next}
+                onPrev={goPrev}
+                onNext={goNext}
+              />
+            ) : null}
+
+            {inExercise && activeExercise ? (
+              <ExerciseLayout
+                exercise={activeExercise}
+                htmlSrc={htmlSrc}
+                cssSrc={cssSrc}
+                onHtmlChange={setHtmlSrc}
+                onCssChange={setCssSrc}
                 parsed={parsed}
                 cssSource={debouncedCss}
-                allSelectors={allSelectors}
-              />
-            </CollapsiblePanel>
-
-            <CollapsiblePanel
-              title="HTML — Struttura"
-              num={2}
-              accent="#fb923c"
-            >
-              <HtmlEditorPanel
-                value={htmlSrc}
-                onChange={setHtmlSrc}
-                parsed={parsed}
-                fontSize={editorFontSize}
-              />
-            </CollapsiblePanel>
-
-            <CollapsiblePanel title="CSS — Stile" num={3} accent="#4ecdc4">
-              <CssEditorPanel
-                value={cssSrc}
-                onChange={setCssSrc}
-                parsed={parsed}
                 cssRules={cssRules}
+                allSelectors={allSelectors}
                 fontSize={editorFontSize}
               />
-            </CollapsiblePanel>
-          </ResizableColumns>
-        ) : (
-          <ResizableColumns key="stacked" initialWeights={[0.55, 0.45]}>
-            <CollapsiblePanel
-              title="Preview + Albero"
-              num={1}
-              accent="#ff6b6b"
-            >
-              <PreviewPanel
-                parsed={parsed}
-                cssSource={debouncedCss}
-                allSelectors={allSelectors}
-              />
-            </CollapsiblePanel>
-
-            <CollapsiblePanel
-              title="HTML + CSS"
-              num={2}
-              accent="#fb923c"
-            >
+            ) : editorLayout === "side" ? (
               <ResizableColumns
-                direction="column"
-                initialWeights={[0.5, 0.5]}
-                minSizePx={80}
+                key="side"
+                initialWeights={[0.55, 0.225, 0.225]}
               >
-                <div className="flex flex-col min-h-0 border-b border-[var(--bd)]">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-[var(--sf2)] border-b border-[var(--bd)] flex-shrink-0">
-                    <span className="w-3 h-3 rounded-full bg-[#fb923c] flex items-center justify-center text-[7px] font-bold text-black">H</span>
-                    <span className="font-mono text-[9px] tracking-wider uppercase text-[var(--mu)]">HTML — Struttura</span>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <HtmlEditorPanel
-                      value={htmlSrc}
-                      onChange={setHtmlSrc}
-                      parsed={parsed}
-                      fontSize={editorFontSize}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col min-h-0">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-[var(--sf2)] border-b border-[var(--bd)] flex-shrink-0">
-                    <span className="w-3 h-3 rounded-full bg-[#4ecdc4] flex items-center justify-center text-[7px] font-bold text-black">C</span>
-                    <span className="font-mono text-[9px] tracking-wider uppercase text-[var(--mu)]">CSS — Stile</span>
-                  </div>
-                  <div className="flex-1 min-h-0">
-                    <CssEditorPanel
-                      value={cssSrc}
-                      onChange={setCssSrc}
-                      parsed={parsed}
-                      cssRules={cssRules}
-                      fontSize={editorFontSize}
-                    />
-                  </div>
-                </div>
-              </ResizableColumns>
-            </CollapsiblePanel>
-          </ResizableColumns>
-        )}
+                <CollapsiblePanel
+                  title="Preview + Albero"
+                  num={1}
+                  accent="#ff6b6b"
+                >
+                  <PreviewPanel
+                    parsed={parsed}
+                    cssSource={debouncedCss}
+                    allSelectors={allSelectors}
+                  />
+                </CollapsiblePanel>
 
-        {/* Footer: checklist in modalità esercizio, legenda altrimenti */}
-        {inExercise ? (
-          <ChecklistBar results={checkResults} />
-        ) : (
-          <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">
-            <LegendItem icon="👻" label="Div invisibili" desc="usa Raggi X" />
-            <LegendItem
-              icon="👆"
-              label="Genitore → Figlio"
-              desc="chi contiene chi"
-            />
-            <LegendItem
-              icon="👫"
-              label="Fratelli"
-              desc="stesso livello, stesso genitore"
-            />
-            <LegendItem icon="🎨" label="HTML = struttura · CSS = stile" />
+                <CollapsiblePanel
+                  title="HTML — Struttura"
+                  num={2}
+                  accent="#fb923c"
+                >
+                  <HtmlEditorPanel
+                    value={htmlSrc}
+                    onChange={setHtmlSrc}
+                    parsed={parsed}
+                    fontSize={editorFontSize}
+                  />
+                </CollapsiblePanel>
+
+                <CollapsiblePanel title="CSS — Stile" num={3} accent="#4ecdc4">
+                  <CssEditorPanel
+                    value={cssSrc}
+                    onChange={setCssSrc}
+                    parsed={parsed}
+                    cssRules={cssRules}
+                    fontSize={editorFontSize}
+                  />
+                </CollapsiblePanel>
+              </ResizableColumns>
+            ) : (
+              <ResizableColumns key="stacked" initialWeights={[0.55, 0.45]}>
+                <CollapsiblePanel
+                  title="Preview + Albero"
+                  num={1}
+                  accent="#ff6b6b"
+                >
+                  <PreviewPanel
+                    parsed={parsed}
+                    cssSource={debouncedCss}
+                    allSelectors={allSelectors}
+                  />
+                </CollapsiblePanel>
+
+                <CollapsiblePanel
+                  title="HTML + CSS"
+                  num={2}
+                  accent="#fb923c"
+                >
+                  <ResizableColumns
+                    direction="column"
+                    initialWeights={[0.5, 0.5]}
+                    minSizePx={80}
+                  >
+                    <div className="flex flex-col min-h-0 border-b border-[var(--bd)]">
+                      <div className="flex items-center gap-2 px-3 py-1 bg-[var(--sf2)] border-b border-[var(--bd)] flex-shrink-0">
+                        <span className="w-3 h-3 rounded-full bg-[#fb923c] flex items-center justify-center text-[7px] font-bold text-black">H</span>
+                        <span className="font-mono text-[9px] tracking-wider uppercase text-[var(--mu)]">HTML — Struttura</span>
+                      </div>
+                      <div className="flex-1 min-h-0">
+                        <HtmlEditorPanel
+                          value={htmlSrc}
+                          onChange={setHtmlSrc}
+                          parsed={parsed}
+                          fontSize={editorFontSize}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col min-h-0">
+                      <div className="flex items-center gap-2 px-3 py-1 bg-[var(--sf2)] border-b border-[var(--bd)] flex-shrink-0">
+                        <span className="w-3 h-3 rounded-full bg-[#4ecdc4] flex items-center justify-center text-[7px] font-bold text-black">C</span>
+                        <span className="font-mono text-[9px] tracking-wider uppercase text-[var(--mu)]">CSS — Stile</span>
+                      </div>
+                      <div className="flex-1 min-h-0">
+                        <CssEditorPanel
+                          value={cssSrc}
+                          onChange={setCssSrc}
+                          parsed={parsed}
+                          cssRules={cssRules}
+                          fontSize={editorFontSize}
+                        />
+                      </div>
+                    </div>
+                  </ResizableColumns>
+                </CollapsiblePanel>
+              </ResizableColumns>
+            )}
+
+            {/* Footer: checklist in modalità esercizio, legenda altrimenti */}
+            {inExercise ? (
+              <ChecklistBar results={checkResults} />
+            ) : (
+              <div className="flex border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px]">
+                <LegendItem icon="👻" label="Div invisibili" desc="usa Raggi X" />
+                <LegendItem
+                  icon="👆"
+                  label="Genitore → Figlio"
+                  desc="chi contiene chi"
+                />
+                <LegendItem
+                  icon="👫"
+                  label="Fratelli"
+                  desc="stesso livello, stesso genitore"
+                />
+                <LegendItem icon="🎨" label="HTML = struttura · CSS = stile" />
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         <InfoTooltip parsed={parsed} />
       </div>
