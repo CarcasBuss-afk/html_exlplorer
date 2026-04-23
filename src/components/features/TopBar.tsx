@@ -20,6 +20,7 @@ import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useHighlight } from "@/hooks/useHighlight";
 import { EXAMPLES } from "@/lib/examples";
+import { findExercise } from "@/lib/exercises";
 import { downloadHtmlFile } from "@/lib/exporter";
 import { parseHtmlFile } from "@/lib/importer";
 import type { EditorLayout } from "@/app/page";
@@ -36,6 +37,7 @@ interface Props {
   fontSize: number;
   onFontSizeChange: (size: number) => void;
   layoutToggleDisabled: boolean;
+  activeExerciseId: string | null;
 }
 
 export default function TopBar({
@@ -50,12 +52,20 @@ export default function TopBar({
   fontSize,
   onFontSizeChange,
   layoutToggleDisabled,
+  activeExerciseId,
 }: Props) {
   const { mode, setMode, clear, previewTheme, setPreviewTheme } =
     useHighlight();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleExport() {
+    // In modalità esercizio il file prende il nome dell'esercizio,
+    // così lo studente ritrova facilmente ciò che ha salvato.
+    const exercise = activeExerciseId ? findExercise(activeExerciseId) : null;
+    if (exercise) {
+      downloadHtmlFile(htmlSrc, cssSrc, `${exercise.id}.html`);
+      return;
+    }
     const ex = EXAMPLES.find((e) => e.id === currentExample);
     const fname = ex ? `${ex.id}.html` : "mio-progetto.html";
     downloadHtmlFile(htmlSrc, cssSrc, fname);

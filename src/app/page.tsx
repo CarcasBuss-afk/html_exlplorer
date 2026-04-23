@@ -178,6 +178,7 @@ export default function Home() {
           fontSize={editorFontSize}
           onFontSizeChange={setEditorFontSize}
           layoutToggleDisabled={inExercise}
+          activeExerciseId={activeExercise?.id ?? null}
         />
 
         {/* Area principale: sidebar a sinistra + contenuto a destra */}
