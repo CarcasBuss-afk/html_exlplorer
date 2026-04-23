@@ -12,15 +12,15 @@ export const CHAPTERS: Chapter[] = [
   },
   {
     id: 2,
-    title: "Div e nesting",
-    description: "Raggruppare elementi con div, classi, id e gerarchia",
-    accent: "#a78bfa",
-  },
-  {
-    id: 3,
     title: "CSS basi",
     description: "Selettori, colori, padding, margin, border e box model",
     accent: "#f472b6",
+  },
+  {
+    id: 3,
+    title: "Div e nesting",
+    description: "Raggruppare elementi con div, classi, id e gerarchia",
+    accent: "#a78bfa",
   },
   {
     id: 4,

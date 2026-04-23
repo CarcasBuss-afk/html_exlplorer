@@ -4,8 +4,8 @@
 
 import type { Exercise } from "@/types/explorer";
 import { CH1_EXERCISES } from "./ch1-primi-tag";
-import { CH2_EXERCISES } from "./ch2-div-nesting";
-import { CH3_EXERCISES } from "./ch3-css-basi";
+import { CH2_EXERCISES } from "./ch2-css-basi";
+import { CH3_EXERCISES } from "./ch3-div-nesting";
 import { CH4_EXERCISES } from "./ch4-flexbox";
 import { CH5_EXERCISES } from "./ch5-layout";
 import { CH6_EXERCISES } from "./ch6-stati-interattivi";
@@ -21,9 +21,7 @@ export const EXERCISES: Exercise[] = [
   ...CH5_EXERCISES,
   ...CH6_EXERCISES,
   ...CH7_EXERCISES,
-].sort(
-  (a, b) => a.chapter - b.chapter || a.order - b.order,
-);
+].sort((a, b) => a.chapter - b.chapter || a.order - b.order);
 
 export function findExercise(id: string): Exercise | undefined {
   return EXERCISES.find((e) => e.id === id);
