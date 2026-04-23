@@ -19,10 +19,10 @@ export default function ChecklistBar({ results }: Props) {
   const allDone = total > 0 && done === total;
 
   return (
-    <div className="flex items-center gap-3 px-4 py-1.5 border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[11px] overflow-x-auto explorer-scroll">
-      <div className="flex items-center gap-2 flex-shrink-0 font-mono text-[10px] uppercase tracking-wider">
+    <div className="flex items-center gap-4 px-4 py-2.5 border-t border-[var(--bd)] flex-shrink-0 bg-[var(--sf)] text-[13px] overflow-x-auto explorer-scroll">
+      <div className="flex items-center gap-2.5 flex-shrink-0 font-mono text-[12px] uppercase tracking-wider">
         {allDone ? (
-          <PartyPopper size={14} className="text-[#34d399]" />
+          <PartyPopper size={16} className="text-[#34d399]" />
         ) : null}
         <span
           className={
@@ -34,7 +34,7 @@ export default function ChecklistBar({ results }: Props) {
           {done}/{total} · {pct}%
         </span>
         {/* Barra di progresso */}
-        <div className="w-24 h-1.5 rounded bg-[var(--sf2)] overflow-hidden">
+        <div className="w-32 h-2 rounded bg-[var(--sf2)] overflow-hidden">
           <div
             className="h-full transition-all duration-300"
             style={{
@@ -45,7 +45,7 @@ export default function ChecklistBar({ results }: Props) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 flex-1 min-w-0 flex-wrap">
+      <div className="flex items-center gap-4 flex-1 min-w-0 flex-wrap">
         {results.map((r, i) => (
           <div
             key={i}
@@ -53,9 +53,9 @@ export default function ChecklistBar({ results }: Props) {
             title={r.message}
           >
             {r.ok ? (
-              <CheckCircle2 size={13} className="text-[#34d399] flex-shrink-0" />
+              <CheckCircle2 size={15} className="text-[#34d399] flex-shrink-0" />
             ) : (
-              <Circle size={13} className="text-[var(--mu)] flex-shrink-0" />
+              <Circle size={15} className="text-[var(--mu)] flex-shrink-0" />
             )}
             <span
               className={
