@@ -12,7 +12,6 @@ import {
   cssRuleHasProperty,
   hasClass,
   hasCssRule,
-  hasId,
   hasTag,
 } from "../exerciseChecks";
 
@@ -103,19 +102,21 @@ export const CH2_EXERCISES: Exercise[] = [
   },
 
   // ———————————————————————————————————————————————————————
-  // 2.4 — Selettore per id
+  // 2.4 — Centrare il testo
   // ———————————————————————————————————————————————————————
   {
-    id: "selettore-id",
+    id: "testo-centrato",
     chapter: 2,
     order: 4,
-    title: "Selettore per id",
+    title: "Centrare il testo",
     consegna:
-      'Scrivi un <h2> con id="principale". Nel CSS scrivi #principale { } con background, color e padding.',
+      'Scrivi DUE paragrafi: uno con class="centrato" e uno normale. Nel CSS stila .centrato con text-align: center, background e padding.',
     intro:
-      "Per selezionare un id usa il CANCELLETTO prima del nome: #principale { ... }. Ricorda: l'id è UNICO nella pagina (un solo elemento con quell'id).",
-    targetHtml: `<h2 id="principale">Sezione principale</h2>`,
-    targetCss: `#principale {
+      "text-align: center centra il testo dentro al suo box. Come per color e background, puoi applicarlo a un selettore di classe per colpire solo certi elementi.",
+    targetHtml: `<p class="centrato">Questo paragrafo è centrato!</p>
+<p>Questo paragrafo è allineato normalmente (a sinistra).</p>`,
+    targetCss: `.centrato {
+  text-align: center;
   background: #a78bfa;
   color: white;
   padding: 14px;
@@ -123,10 +124,16 @@ export const CH2_EXERCISES: Exercise[] = [
     starterHtml: ``,
     starterCss: ``,
     checks: [
-      hasTag("h2", "Contiene un <h2>"),
-      hasId("principale", 'Un elemento ha id="principale"'),
-      hasCssRule("#principale", "Esiste la regola #principale"),
-      cssRuleHasProperty("#principale", "background", ANY, "#principale ha un background"),
+      hasTag("p", "Contiene almeno un <p>"),
+      hasClass("centrato", 'Un <p> ha class="centrato"'),
+      hasCssRule(".centrato", "Esiste la regola .centrato"),
+      cssRuleHasProperty(
+        ".centrato",
+        "text-align",
+        "center",
+        ".centrato ha text-align: center",
+      ),
+      cssRuleHasProperty(".centrato", "background", ANY, ".centrato ha un background"),
     ],
   },
 

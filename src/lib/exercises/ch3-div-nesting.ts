@@ -12,7 +12,6 @@ import {
   cssRuleHasProperty,
   hasClass,
   hasCssRule,
-  hasId,
   hasTag,
   nestedIn,
   tagHasChildren,
@@ -240,37 +239,45 @@ export const CH3_EXERCISES: Exercise[] = [
   },
 
   // ———————————————————————————————————————————————————————
-  // 3.7 — Id principale
+  // 3.7 — Classi annidate con stili diversi
   // ———————————————————————————————————————————————————————
   {
-    id: "id-principale",
+    id: "classi-annidate",
     chapter: 3,
     order: 7,
-    title: "L'id: un nome unico",
+    title: "Classi annidate con stili diversi",
     consegna:
-      'Crea un <div id="principale"> che contiene un <h1> e un <p>. Stila #principale con background, color, padding e border-radius.',
+      'Crea un <div class="esterno"> che contiene un <div class="interno"> con un <p>. Stila .esterno con un background; stila .interno con un background DIVERSO, così i due livelli sono visibili.',
     intro:
-      "L'id è come la classe ma UNICO: in tutta la pagina può esistere un solo elemento con quell'id. Si scrive con id=\"nome\" e nel CSS si seleziona col cancelletto: #nome { ... }.",
-    targetHtml: `<div id="principale">
-  <h1>Sezione principale</h1>
-  <p>Qui c'è il contenuto più importante della pagina.</p>
+      "Quando un div sta dentro un altro, dare classi diverse ai due div ti permette di stilarli in modo indipendente. L'albero ti mostra chiaramente i livelli.",
+    targetHtml: `<div class="esterno">
+  <div class="interno">
+    <p>Sono nel div interno, dentro al div esterno.</p>
+  </div>
 </div>`,
-    targetCss: `#principale {
-  background: #34d399;
-  color: black;
+    targetCss: `.esterno {
+  background: #1c1c38;
   padding: 20px;
   border-radius: 10px;
+}
+.interno {
+  background: #4ecdc4;
+  color: black;
+  padding: 14px;
+  border-radius: 6px;
   font-family: sans-serif;
 }`,
     starterHtml: ``,
     starterCss: ``,
     checks: [
-      hasId("principale", 'Esiste un elemento con id="principale"'),
-      nestedIn("h1", "div", "Il <h1> è dentro al <div>"),
-      nestedIn("p", "div", "Il <p> è dentro al <div>"),
-      hasCssRule("#principale", "Esiste la regola #principale"),
-      cssRuleHasProperty("#principale", "background", ANY, "#principale ha un background"),
-      cssRuleHasProperty("#principale", "padding", ANY, "#principale ha un padding"),
+      hasClass("esterno", "Esiste un div.esterno"),
+      hasClass("interno", "Esiste un div.interno"),
+      nestedIn("div", "div", "Il div.interno è dentro al div.esterno"),
+      nestedIn("p", "div", "Il <p> è dentro a un div"),
+      hasCssRule(".esterno", "Esiste la regola .esterno"),
+      hasCssRule(".interno", "Esiste la regola .interno"),
+      cssRuleHasProperty(".esterno", "background", ANY, ".esterno ha un background"),
+      cssRuleHasProperty(".interno", "background", ANY, ".interno ha un background"),
     ],
   },
 
