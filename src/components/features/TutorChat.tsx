@@ -3,7 +3,7 @@
 // Pannello chat del tutor AI: slide-in da destra in modalità esercizio.
 // Lo studente fa domande sui concetti già visti; il tutor (Claude Haiku
 // 4.5) risponde con indizi e spiegazioni, MAI con codice completo.
-// Limite hard-coded: 5 messaggi user per esercizio. Conversazione
+// Limite hard-coded: 10 messaggi user per esercizio. Conversazione
 // resettata a ogni cambio esercizio.
 
 import { useEffect, useRef, useState } from "react";
@@ -17,7 +17,7 @@ interface Props {
   exerciseTitle: string;
 }
 
-const MAX_USER_MESSAGES = 5;
+const MAX_USER_MESSAGES = 10;
 
 export default function TutorChat({
   open,

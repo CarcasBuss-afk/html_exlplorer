@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = "claude-haiku-4-5-20251001";
 const MAX_TOKENS = 500;
-const MAX_USER_MESSAGES = 5;
+const MAX_USER_MESSAGES = 10;
 
 function buildSystemPrompt(
   consegna: string,
