@@ -87,6 +87,7 @@ export const CH5_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".card", "padding", ANY, ".card ha un padding"),
       cssRuleHasProperty(".card", "border-radius", ANY, ".card ha un border-radius"),
     ],
+    topics: ["article", "tag-semantici"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -162,6 +163,7 @@ export const CH5_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".hero", "padding", ANY, ".hero ha un padding"),
       cssRuleHasProperty(".hero", "background", ANY, ".hero ha un background"),
     ],
+    topics: ["section", "hero-pattern", "call-to-action"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -241,6 +243,7 @@ export const CH5_EXERCISES: Exercise[] = [
       hasCssRule(".contenuto", "Esiste la regola .contenuto"),
       cssRuleHasProperty(".contenuto", "flex", ANY, ".contenuto ha flex impostato"),
     ],
+    topics: ["aside", "main", "sidebar-pattern"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -304,6 +307,7 @@ export const CH5_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".card", "background", ANY, ".card ha un background"),
       cssRuleHasProperty(".card", "padding", ANY, ".card ha un padding"),
     ],
+    topics: ["griglia-pattern"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -378,6 +382,7 @@ export const CH5_EXERCISES: Exercise[] = [
         ".avatar ha un border-radius",
       ),
     ],
+    topics: ["border-radius-50", "avatar-pattern", "img-circolare"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -459,6 +464,7 @@ export const CH5_EXERCISES: Exercise[] = [
         ".colonna ha flex-direction: column",
       ),
     ],
+    topics: ["footer", "h4", "text-transform", "flex-annidati"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -579,6 +585,7 @@ export const CH5_EXERCISES: Exercise[] = [
         ".hero ha align-items: center",
       ),
     ],
+    topics: ["pagina-multi-sezione", "selettori-discendenti"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -672,6 +679,7 @@ export const CH5_EXERCISES: Exercise[] = [
       hasCssRule(".evidenza", "Esiste la regola .evidenza"),
       cssRuleHasProperty(".evidenza", "background", ANY, ".evidenza ha un background"),
     ],
+    topics: ["piu-classi", "sovrascrittura-stili"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -785,6 +793,7 @@ export const CH5_EXERCISES: Exercise[] = [
       hasCssRule(".area", "Esiste la regola .area"),
       cssRuleHasProperty(".area", "flex", ANY, ".area ha flex impostato"),
     ],
+    topics: ["header", "dashboard-pattern"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -951,5 +960,6 @@ export const CH5_EXERCISES: Exercise[] = [
       hasCssRule(".card", "Esiste la regola .card"),
       cssRuleHasProperty(".card", "flex", ANY, ".card ha flex impostato"),
     ],
+    topics: ["pagina-completa"],
   },
 ];

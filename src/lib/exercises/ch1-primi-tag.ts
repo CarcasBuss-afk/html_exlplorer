@@ -22,6 +22,7 @@ export const CH1_EXERCISES: Exercise[] = [
     starterHtml: ``,
     starterCss: ``,
     checks: [hasTag("h1", "Contiene un <h1>")],
+    topics: ["html-base", "tag", "h1"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -45,6 +46,7 @@ export const CH1_EXERCISES: Exercise[] = [
       hasTag("h1", "Contiene un <h1>"),
       hasTag("p", "Contiene un <p>"),
     ],
+    topics: ["p"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -69,6 +71,7 @@ export const CH1_EXERCISES: Exercise[] = [
       hasTag("h2", "Contiene un <h2>"),
       hasTag("h3", "Contiene un <h3>"),
     ],
+    topics: ["h2", "h3", "h4", "h5", "h6", "gerarchia-titoli"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -91,6 +94,7 @@ export const CH1_EXERCISES: Exercise[] = [
       hasTag("p", "Contiene un <p>"),
       hasTag("a", "Contiene un link <a>"),
     ],
+    topics: ["a", "href", "link", "attributi"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -115,6 +119,7 @@ export const CH1_EXERCISES: Exercise[] = [
       hasTag("p", "Contiene un <p>"),
       hasTag("a", "Contiene un link <a>"),
     ],
+    topics: [],
   },
 
   // ———————————————————————————————————————————————————————
@@ -138,6 +143,7 @@ export const CH1_EXERCISES: Exercise[] = [
       hasTag("h2", "Contiene un <h2>"),
       hasTag("img", "Contiene un'immagine <img>"),
     ],
+    topics: ["img", "src", "alt", "tag-autochiudenti"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -165,5 +171,6 @@ export const CH1_EXERCISES: Exercise[] = [
       hasTag("p", "Contiene almeno un <p>"),
       hasTag("a", "Contiene un link <a>"),
     ],
+    topics: [],
   },
 ];

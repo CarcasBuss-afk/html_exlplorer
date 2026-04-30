@@ -100,6 +100,16 @@ export interface Exercise {
   starterCss: string;
   // Lista di check eseguiti ad ogni modifica del codice
   checks: CheckFn[];
+  // Argomenti NUOVI introdotti da questo esercizio (parole-chiave brevi).
+  // Il tutor AI userà l'unione dei topics di tutti gli esercizi precedenti
+  // più questo per costruire la whitelist degli argomenti consentiti.
+  topics: string[];
+}
+
+// Messaggio scambiato con il tutor AI.
+export interface TutorMessage {
+  role: "user" | "assistant";
+  content: string;
 }
 
 // Mappa degli esercizi completati salvata in localStorage.

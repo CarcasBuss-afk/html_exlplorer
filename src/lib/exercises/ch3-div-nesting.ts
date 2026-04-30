@@ -50,6 +50,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty("div", "background", ANY, "div ha un background"),
       cssRuleHasProperty("div", "padding", ANY, "div ha un padding"),
     ],
+    topics: ["div", "contenitore", "nesting"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -86,6 +87,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty("div", "padding", ANY, "div ha un padding"),
       cssRuleHasProperty("div", "border-radius", ANY, "div ha un border-radius"),
     ],
+    topics: ["genitore-figlio"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -119,6 +121,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty("div", "background", ANY, "div ha un background"),
       cssRuleHasProperty("div", "padding", ANY, "div ha un padding"),
     ],
+    topics: ["fratelli"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -156,6 +159,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty("div", "padding", ANY, "div ha un padding"),
       cssRuleHasProperty("div", "margin", ANY, "div ha un margin"),
     ],
+    topics: ["div-annidati", "livelli-annidamento"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -192,6 +196,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".carta", "padding", ANY, ".carta ha un padding"),
       cssRuleHasProperty(".carta", "border-radius", ANY, ".carta ha un border-radius"),
     ],
+    topics: ["classe-su-div"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -236,6 +241,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".titolo", "background", ANY, ".titolo ha un background"),
       cssRuleHasProperty(".contenuto", "background", ANY, ".contenuto ha un background"),
     ],
+    topics: ["sezioni-pagina"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -279,6 +285,7 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".esterno", "background", ANY, ".esterno ha un background"),
       cssRuleHasProperty(".interno", "background", ANY, ".interno ha un background"),
     ],
+    topics: [],
   },
 
   // ———————————————————————————————————————————————————————
@@ -333,5 +340,6 @@ export const CH3_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".header", "background", ANY, ".header ha un background"),
       cssRuleHasProperty(".body", "background", ANY, ".body ha un background"),
     ],
+    topics: [],
   },
 ];

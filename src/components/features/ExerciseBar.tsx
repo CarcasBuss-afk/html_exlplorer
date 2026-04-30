@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Lightbulb,
   RotateCcw,
+  Sparkles,
   X,
 } from "lucide-react";
 import type { Exercise } from "@/types/explorer";
@@ -26,6 +27,8 @@ interface Props {
   hasNext: boolean;
   onPrev: () => void;
   onNext: () => void;
+  tutorOpen: boolean;
+  onToggleTutor: () => void;
 }
 
 export default function ExerciseBar({
@@ -37,6 +40,8 @@ export default function ExerciseBar({
   hasNext,
   onPrev,
   onNext,
+  tutorOpen,
+  onToggleTutor,
 }: Props) {
   const [introOpen, setIntroOpen] = useState(false);
   const chapter = findChapter(exercise.chapter);
@@ -93,6 +98,20 @@ export default function ExerciseBar({
               />
             </button>
           ) : null}
+
+          <button
+            className={cn(
+              "flex items-center gap-1 font-mono text-[10px] px-2 py-1 rounded border transition-all",
+              tutorOpen
+                ? "border-[#a78bfa] text-[#a78bfa] bg-[rgba(167,139,250,0.08)]"
+                : "border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[#a78bfa] hover:text-[#a78bfa]",
+            )}
+            onClick={onToggleTutor}
+            title="Chiedi aiuto al tutor AI"
+          >
+            <Sparkles size={11} />
+            TUTOR
+          </button>
 
           <button
             className="flex items-center gap-1 font-mono text-[10px] px-2 py-1 rounded border border-[var(--bd)] text-[var(--mu)] bg-[var(--sf)] hover:border-[var(--mu)] hover:text-[var(--tx)] transition-all disabled:opacity-30 disabled:cursor-not-allowed"

@@ -42,6 +42,7 @@ export const CH2_EXERCISES: Exercise[] = [
       hasCssRule("p", "Esiste la regola p"),
       cssRuleHasProperty("p", "color", ANY, "La regola p ha un color"),
     ],
+    topics: ["css-base", "selettore-tag", "regola-css", "color"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -70,6 +71,7 @@ export const CH2_EXERCISES: Exercise[] = [
       cssRuleHasProperty("h1", "background", ANY, "h1 ha un background"),
       cssRuleHasProperty("h1", "padding", ANY, "h1 ha un padding"),
     ],
+    topics: ["background", "padding"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -99,6 +101,7 @@ export const CH2_EXERCISES: Exercise[] = [
       hasCssRule(".evidenza", "Esiste la regola .evidenza"),
       cssRuleHasProperty(".evidenza", "background", ANY, ".evidenza ha un background"),
     ],
+    topics: ["class", "attributo-class", "selettore-classe"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -135,6 +138,7 @@ export const CH2_EXERCISES: Exercise[] = [
       ),
       cssRuleHasProperty(".centrato", "background", ANY, ".centrato ha un background"),
     ],
+    topics: ["text-align"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -164,6 +168,7 @@ export const CH2_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".scatola", "background", ANY, ".scatola ha un background"),
       cssRuleHasProperty(".scatola", "padding", ANY, ".scatola ha un padding"),
     ],
+    topics: ["padding-shorthand", "px"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -195,6 +200,7 @@ export const CH2_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".blocco", "padding", ANY, ".blocco ha un padding"),
       cssRuleHasProperty(".blocco", "margin", ANY, ".blocco ha un margin"),
     ],
+    topics: ["margin", "box-model"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -229,6 +235,7 @@ export const CH2_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".pillola", "border", ANY, ".pillola ha un border"),
       cssRuleHasProperty(".pillola", "border-radius", ANY, ".pillola ha un border-radius"),
     ],
+    topics: ["border", "border-radius", "display-inline-block", "font-weight"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -262,5 +269,6 @@ export const CH2_EXERCISES: Exercise[] = [
       cssRuleHasProperty("h1", "padding", ANY, "h1 ha un padding"),
       cssRuleHasProperty("h1", "border-radius", ANY, "h1 ha un border-radius"),
     ],
+    topics: ["font-family"],
   },
 ];

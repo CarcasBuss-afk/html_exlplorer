@@ -56,6 +56,7 @@ export const CH4_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".box", "background", ANY, ".box ha un background"),
       cssRuleHasProperty(".box", "padding", ANY, ".box ha un padding"),
     ],
+    topics: ["display-flex", "flexbox", "asse-principale"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -98,6 +99,7 @@ export const CH4_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".riga", "gap", ANY, ".riga ha un gap"),
       cssRuleHasProperty(".box", "background", ANY, ".box ha un background"),
     ],
+    topics: ["gap"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -144,6 +146,7 @@ export const CH4_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".box", "flex", ANY, ".box ha la proprietà flex"),
       cssRuleHasProperty(".box", "background", ANY, ".box ha un background"),
     ],
+    topics: ["flex-1", "flex-grow", "larghezze-uguali"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -193,6 +196,7 @@ export const CH4_EXERCISES: Exercise[] = [
       ),
       cssRuleHasProperty(".colonna", "gap", ANY, ".colonna ha un gap"),
     ],
+    topics: ["flex-direction", "flex-direction-column", "asse-trasversale"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -257,6 +261,14 @@ export const CH4_EXERCISES: Exercise[] = [
       hasCssRule(".menu", "Esiste la regola .menu"),
       cssRuleHasProperty(".menu", "display", "flex", ".menu ha display: flex"),
     ],
+    topics: [
+      "nav",
+      "justify-content",
+      "space-between",
+      "align-items",
+      "font-size",
+      "text-decoration",
+    ],
   },
 
   // ———————————————————————————————————————————————————————
@@ -313,6 +325,7 @@ export const CH4_EXERCISES: Exercise[] = [
       hasCssRule(".punto", "Esiste la regola .punto"),
       cssRuleHasProperty(".punto", "background", ANY, ".punto ha un background"),
     ],
+    topics: ["justify-content-center", "align-items-center", "height", "centratura"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -393,6 +406,7 @@ export const CH4_EXERCISES: Exercise[] = [
         ".riga-around ha justify-content: space-around",
       ),
     ],
+    topics: ["space-around", "space-evenly", "distribuzione-spazio"],
   },
 
   // ———————————————————————————————————————————————————————
@@ -472,6 +486,14 @@ export const CH4_EXERCISES: Exercise[] = [
       cssRuleHasProperty(".card", "background", ANY, ".card ha un background"),
       cssRuleHasProperty(".card", "padding", ANY, ".card ha un padding"),
       cssRuleHasProperty(".card", "border-radius", ANY, ".card ha un border-radius"),
+    ],
+    topics: [
+      "button",
+      "flex-end",
+      "line-height",
+      "cursor-pointer",
+      "card-pattern",
+      "width",
     ],
   },
 ];

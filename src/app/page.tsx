@@ -32,6 +32,7 @@ import ExerciseBar from "@/components/features/ExerciseBar";
 import ChecklistBar from "@/components/features/ChecklistBar";
 import ExerciseLayout from "@/components/features/ExerciseLayout";
 import ExerciseSidebar from "@/components/features/ExerciseSidebar";
+import TutorChat from "@/components/features/TutorChat";
 
 export type EditorLayout = "side" | "stacked";
 
@@ -46,6 +47,7 @@ export default function Home() {
   const [activeExercise, setActiveExercise] = useState<Exercise | null>(null);
   const [progress, setProgress] = useState<ExerciseProgress>({});
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
 
   // Carica i progressi salvati dal localStorage al primo render lato client.
   // È un'idratazione da API browser (localStorage non disponibile in SSR),
@@ -139,10 +141,12 @@ export default function Home() {
     setHtmlSrc(ex.starterHtml);
     setCssSrc(ex.starterCss);
     setExampleId("");
+    setTutorOpen(false);
   }
 
   function exitExercise() {
     setActiveExercise(null);
+    setTutorOpen(false);
   }
 
   function restartExercise() {
@@ -204,6 +208,8 @@ export default function Home() {
                 hasNext={!!adjacent.next}
                 onPrev={goPrev}
                 onNext={goNext}
+                tutorOpen={tutorOpen}
+                onToggleTutor={() => setTutorOpen((v) => !v)}
               />
             ) : null}
 
@@ -341,6 +347,15 @@ export default function Home() {
         </div>
 
         <InfoTooltip parsed={parsed} />
+
+        {activeExercise ? (
+          <TutorChat
+            open={tutorOpen}
+            onClose={() => setTutorOpen(false)}
+            exerciseId={activeExercise.id}
+            exerciseTitle={activeExercise.title}
+          />
+        ) : null}
       </div>
     </HighlightProvider>
   );

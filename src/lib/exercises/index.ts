@@ -45,3 +45,18 @@ export function adjacentExercises(id: string): {
     next: idx < EXERCISES.length - 1 ? EXERCISES[idx + 1] : null,
   };
 }
+
+// Argomenti consentiti per il tutor AI: unione dei topics dell'esercizio
+// corrente più tutti gli esercizi che lo precedono nell'ordine globale
+// (capitolo poi order). Lo studente potrebbe aver saltato esercizi: la
+// whitelist conta solo ciò che, nel piano didattico, sarebbe già stato
+// affrontato fino a questo punto.
+export function getAllowedTopics(exerciseId: string): string[] {
+  const idx = EXERCISES.findIndex((e) => e.id === exerciseId);
+  if (idx < 0) return [];
+  const set = new Set<string>();
+  for (let i = 0; i <= idx; i++) {
+    for (const t of EXERCISES[i].topics) set.add(t);
+  }
+  return Array.from(set);
+}
